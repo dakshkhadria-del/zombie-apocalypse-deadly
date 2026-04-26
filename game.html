@@ -110,6 +110,21 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 /* Active press effect */
 #btnShoot:active,#btnJump:active,#btnReload:active,#btnScope:active,#btnKnife:active{filter:brightness(1.5);transform:scale(0.92);}
 .wBtn:active{border-color:#00ff88;}
+
+.chStyleBtn{
+  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+  border-radius:5px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;color:rgba(255,255,255,0.6);transition:all 0.15s;
+  font-family:'Segoe UI',sans-serif;
+}
+.chStyleBtn:hover{border-color:rgba(0,255,136,0.4);color:#00ff88;background:rgba(0,255,136,0.08);}
+.chStyleBtn.active{border-color:#00ff88;color:#00ff88;background:rgba(0,255,136,0.15);box-shadow:0 0 8px rgba(0,255,136,0.2);}
+.chColorBtn{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  border:2px solid rgba(255,255,255,0.15);transition:all 0.15s;flex-shrink:0;
+}
+.chColorBtn:hover{transform:scale(1.2);border-color:rgba(255,255,255,0.6);}
+.chColorBtn.active{border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,0.5);transform:scale(1.15);}
 </style>
 </head>
 <body>
@@ -213,6 +228,15 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <div id="authWelcome"></div>
     <button class="authBtn" id="btnLogin">LOG IN</button>
     <button class="authBtn" id="btnRegister" style="display:none;">CREATE ACCOUNT</button>
+    <div id="importHint" style="display:none;text-align:center;margin-top:4px;">
+      <span style="color:rgba(255,255,255,0.3);font-size:10px;">Different device? </span>
+      <span onclick="switchAuthMode('import')" style="color:#00ff88;font-size:10px;cursor:pointer;text-decoration:underline;">Use on This Device →</span>
+    </div>
+    <div id="importWrap" style="display:none;margin-bottom:12px;">
+      <div style="color:rgba(255,255,255,0.4);font-size:10px;letter-spacing:2px;margin-bottom:6px;">PASTE ACCOUNT CODE</div>
+      <textarea id="importCode" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:5px;color:#fff;font-size:11px;padding:8px;font-family:monospace;resize:none;height:65px;outline:none;box-sizing:border-box;" placeholder="Paste code from your other device..."></textarea>
+      <button onclick="doImport()" style="width:100%;margin-top:6px;padding:10px;background:#00ff88;color:#000;border:none;border-radius:4px;font-weight:700;letter-spacing:2px;font-size:12px;cursor:pointer;font-family:'Segoe UI',sans-serif;">✓ IMPORT ACCOUNT</button>
+    </div>
     <div id="authToggle">Don't have an account? <u>Sign up</u></div>
   </div>
 </div>
@@ -268,7 +292,7 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 <!-- Logged-in bar (shows during game) -->
 <div id="loggedInBar">
   <span id="loggedInName" style="color:#00ff88;font-size:11px;font-weight:700;letter-spacing:2px;">👤 PLAYER</span>
-  <button id="logoutBtn">LOG OUT</button>
+  <button onclick="showExportCode()" style="background:transparent;border:1px solid rgba(0,255,136,0.35);color:rgba(0,255,136,0.8);font-size:10px;padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;margin-right:6px;">📱 USE ON PHONE</button><button id="logoutBtn">LOG OUT</button>
 </div>
 
 
@@ -279,45 +303,84 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
   <!-- CROSSHAIR -->
   <div class="sBox">
     <h4>CROSSHAIR</h4>
-    <div class="sRow">
-      <span class="sLabel">Style</span>
-      <select class="sSelect" id="sCHstyle" onchange="applySettings()">
-        <option value="cross">Cross</option>
-        <option value="dot">Dot Only</option>
-        <option value="circle">Circle</option>
-        <option value="crossdot">Cross + Dot</option>
-        <option value="tcross">T-Cross</option>
-      </select>
+
+    <!-- Style picker grid -->
+    <div class="sLabel" style="margin-bottom:10px;">Style</div>
+    <div id="chStyleGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
+      <div class="chStyleBtn" data-style="cross" title="Classic Cross" onclick="selectCHStyle(this)">+</div>
+      <div class="chStyleBtn" data-style="dot" title="Dot" onclick="selectCHStyle(this)">•</div>
+      <div class="chStyleBtn" data-style="circle" title="Circle" onclick="selectCHStyle(this)">○</div>
+      <div class="chStyleBtn" data-style="crossdot" title="Cross + Dot" onclick="selectCHStyle(this)">⊕</div>
+      <div class="chStyleBtn" data-style="tcross" title="T-Cross" onclick="selectCHStyle(this)">⊥</div>
+      <div class="chStyleBtn" data-style="x" title="X Shape" onclick="selectCHStyle(this)">×</div>
+      <div class="chStyleBtn" data-style="xdot" title="X + Dot" onclick="selectCHStyle(this)">✕</div>
+      <div class="chStyleBtn" data-style="circlecross" title="Circle + Cross" onclick="selectCHStyle(this)">⊗</div>
+      <div class="chStyleBtn" data-style="smalldot" title="Small Dot" onclick="selectCHStyle(this)">·</div>
+      <div class="chStyleBtn" data-style="sniper" title="Sniper" onclick="selectCHStyle(this)">⌖</div>
+      <div class="chStyleBtn" data-style="arrow" title="Arrow" onclick="selectCHStyle(this)">▽</div>
+      <div class="chStyleBtn" data-style="diamond" title="Diamond" onclick="selectCHStyle(this)">◇</div>
+      <div class="chStyleBtn" data-style="star" title="Star" onclick="selectCHStyle(this)">★</div>
+      <div class="chStyleBtn" data-style="brackets" title="Brackets" onclick="selectCHStyle(this)">⌐</div>
+      <div class="chStyleBtn" data-style="none" title="None (Off)" onclick="selectCHStyle(this)">∅</div>
     </div>
-    <div class="sRow">
-      <span class="sLabel">Color</span>
-      <select class="sSelect" id="sCHcolor" onchange="applySettings()">
-        <option value="#ffffff">White</option>
-        <option value="#00ff00">Green</option>
-        <option value="#ff3300">Red</option>
-        <option value="#ffff00">Yellow</option>
-        <option value="#00ffff">Cyan</option>
-        <option value="#ff00ff">Pink</option>
-      </select>
+    <input type="hidden" id="sCHstyle" value="cross"/>
+
+    <!-- Color picker -->
+    <div class="sLabel" style="margin-bottom:10px;">Color</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+      <div class="chColorBtn" data-color="#ffffff" style="background:#ffffff;" onclick="selectCHColor(this)" title="White"></div>
+      <div class="chColorBtn" data-color="#00ff88" style="background:#00ff88;" onclick="selectCHColor(this)" title="Mint Green"></div>
+      <div class="chColorBtn" data-color="#00ff00" style="background:#00ff00;" onclick="selectCHColor(this)" title="Green"></div>
+      <div class="chColorBtn" data-color="#ff3300" style="background:#ff3300;" onclick="selectCHColor(this)" title="Red"></div>
+      <div class="chColorBtn" data-color="#ff8800" style="background:#ff8800;" onclick="selectCHColor(this)" title="Orange"></div>
+      <div class="chColorBtn" data-color="#ffff00" style="background:#ffff00;" onclick="selectCHColor(this)" title="Yellow"></div>
+      <div class="chColorBtn" data-color="#00ffff" style="background:#00ffff;" onclick="selectCHColor(this)" title="Cyan"></div>
+      <div class="chColorBtn" data-color="#ff00ff" style="background:#ff00ff;" onclick="selectCHColor(this)" title="Pink"></div>
+      <div class="chColorBtn" data-color="#aa44ff" style="background:#aa44ff;" onclick="selectCHColor(this)" title="Purple"></div>
+      <div class="chColorBtn" data-color="#ff4488" style="background:#ff4488;" onclick="selectCHColor(this)" title="Hot Pink"></div>
+      <div class="chColorBtn" data-color="#44aaff" style="background:#44aaff;" onclick="selectCHColor(this)" title="Sky Blue"></div>
+      <div class="chColorBtn" data-color="#ffcc00" style="background:#ffcc00;" onclick="selectCHColor(this)" title="Gold"></div>
+      <!-- Custom color picker -->
+      <label title="Custom Color" style="position:relative;cursor:pointer;">
+        <div style="width:28px;height:28px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid rgba(255,255,255,0.3);"></div>
+        <input type="color" id="sCHcolorPicker" style="position:absolute;opacity:0;width:0;height:0;" oninput="selectCHColorCustom(this.value)"/>
+      </label>
     </div>
+    <input type="hidden" id="sCHcolor" value="#ffffff"/>
+
+    <!-- Outline toggle -->
+    <div class="sRow">
+      <span class="sLabel">Outline (Black Border)</span>
+      <label class="sToggle"><input type="checkbox" id="sCHoutline" onchange="applySettings()"/><span class="tslide"></span></label>
+    </div>
+
+    <!-- Opacity -->
+    <div class="sRow">
+      <span class="sLabel">Opacity</span>
+      <input type="range" class="sSlider" id="sCHopacity" min="0.1" max="1" step="0.05" value="1" oninput="applySettings()"/>
+      <span class="sVal" id="sCHopacityV">100%</span>
+    </div>
+
     <div class="sRow">
       <span class="sLabel">Size</span>
-      <input type="range" class="sSlider" id="sCHsize" min="12" max="40" value="22" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHsize" min="12" max="60" value="22" oninput="applySettings()"/>
       <span class="sVal" id="sCHsizeV">22</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Thickness</span>
-      <input type="range" class="sSlider" id="sCHthick" min="1" max="5" value="1.4" step="0.1" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHthick" min="0.5" max="6" value="1.4" step="0.1" oninput="applySettings()"/>
       <span class="sVal" id="sCHthickV">1.4</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Gap</span>
-      <input type="range" class="sSlider" id="sCHgap" min="0" max="12" value="3" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHgap" min="0" max="16" value="3" oninput="applySettings()"/>
       <span class="sVal" id="sCHgapV">3</span>
     </div>
-    <div class="sRow">
-      <span class="sLabel">Preview</span>
-      <div id="sCHpreview"></div>
+
+    <!-- Live Preview (big) -->
+    <div class="sLabel" style="margin-bottom:8px;margin-top:4px;">Live Preview</div>
+    <div id="sCHpreview" style="width:100%;height:100px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;">
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,30,10,0.8),rgba(5,15,5,0.8));border-radius:6px;"></div>
     </div>
   </div>
 
@@ -444,6 +507,7 @@ var MAX_SPLATS=60;
 
 // ── ADMIN PANEL (Owner Only) ───────────────────────────
 var OWNER_NAME = 'owner'; // case-insensitive check
+var ADMIN_NAMES = ['owner','daksh']; // accounts with admin access
 var adminPanelOpen = false;
 
 // Cheat states
@@ -459,7 +523,7 @@ var cheats = {
 };
 
 function isOwner(){
-  return currentUser && currentUser.toLowerCase() === OWNER_NAME;
+  return currentUser && ADMIN_NAMES.indexOf(currentUser.toLowerCase()) !== -1;
 }
 
 function toggleAdminPanel(){
@@ -597,7 +661,7 @@ document.addEventListener('pointerlockchange', function(){
 
 // ── SETTINGS SYSTEM ────────────────────────────────────
 var SETTINGS = {
-  chStyle:'cross', chColor:'#ffffff', chSize:22, chThick:1.4, chGap:3,
+  chStyle:'cross', chColor:'#ffffff', chSize:22, chThick:1.4, chGap:3, chOpacity:1, chOutline:false,
   fov:75, scopeFov:18, sens:0.0018, invertY:false,
   shadow:'high', renderScale:1, vignette:true, blood:true,
   volume:0.8, music:true
@@ -613,11 +677,442 @@ function closeSettingsPanel(){
 
 function applySettings(){
   // Read all values
-  SETTINGS.chStyle = document.getElementById('sCHstyle').value;
-  SETTINGS.chColor = document.getElementById('sCHcolor').value;
-  SETTINGS.chSize  = parseInt(document.getElementById('sCHsize').value);
-  SETTINGS.chThick = parseFloat(document.getElementById('sCHthick').value);
-  SETTINGS.chGap   = parseInt(document.getElementById('sCHgap').value);
+  SETTINGS.chStyle  = document.getElementById('sCHstyle').value;
+  SETTINGS.chColor  = document.getElementById('sCHcolor').value;
+  SETTINGS.chSize   = parseInt(document.getElementById('sCHsize').value);
+  SETTINGS.chThick  = parseFloat(document.getElementById('sCHthick').value);
+  SETTINGS.chGap    = parseInt(document.getElementById('sCHgap').value);
+  SETTINGS.chOpacity= parseFloat(document.getElementById('sCHopacity').value);
+  SETTINGS.chOutline= document.getElementById('sCHoutline').checked;
+  document.getElementById('sCHopacityV').textContent=Math.round(SETTINGS.chOpacity*100)+'%';
+  SETTINGS.fov     = parseInt(document.getElementById('sFOV').value);
+  SETTINGS.scopeFov= parseInt(document.getElementById('sScopeFOV').value);
+  SETTINGS.sens    = parseFloat(document.getElementById('sSens').value);
+  SETTINGS.invertY = document.getElementById('sInvertY').checked;
+  SETTINGS.shadow  = document.getElementById('sShadow').value;
+  SETTINGS.renderScale = parseFloat(document.getElementById('sRenderScale').value);
+  SETTINGS.vignette= document.getElementById('sVignette').checked;
+  SETTINGS.blood   = document.getElementById('sBlood').checked;
+  SETTINGS.volume  = parseFloat(document.getElementById('sVolume').value);
+  SETTINGS.music   = document.getElementById('sMusic').checked;
+
+  // Update value labels
+  document.getElementById('sCHsizeV').textContent = SETTINGS.chSize;
+  document.getElementById('sCHthickV').textContent = SETTINGS.chThick;
+  document.getElementById('sCHgapV').textContent = SETTINGS.chGap;
+  document.getElementById('sFOVv').textContent = SETTINGS.fov+'°';
+  document.getElementById('sScopeFOVv').textContent = SETTINGS.scopeFov+'°';
+  document.getElementById('sSensV').textContent = (SETTINGS.sens*1000).toFixed(1);
+  document.getElementById('sVolumeV').textContent = Math.round(SETTINGS.volume*100)+'%';
+
+  // Apply crosshair
+  buildCrosshair();
+
+  // Apply FOV if in game
+  if(typeof cam !== 'undefined' && !scopeOn) cam.fov = SETTINGS.fov;
+  if(typeof cam !== 'undefined') cam.updateProjectionMatrix();
+
+  // Apply vignette
+  var vig = document.getElementById('vig');
+  if(vig) vig.style.display = SETTINGS.vignette ? 'block' : 'none';
+
+  // Apply render scale
+  if(typeof rndr !== 'undefined'){
+    rndr.setPixelRatio(Math.min(devicePixelRatio, 1) * SETTINGS.renderScale);
+  }
+
+  // Apply shadow
+  if(typeof rndr !== 'undefined'){
+    if(SETTINGS.shadow==='off'){rndr.shadowMap.enabled=false;}
+    else{rndr.shadowMap.enabled=true;}
+  }
+
+  // Music toggle
+  if(!SETTINGS.music) stopMusic();
+}
+
+function selectCHStyle(el){
+  document.querySelectorAll('.chStyleBtn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('sCHstyle').value=el.getAttribute('data-style');
+  SETTINGS.chStyle=el.getAttribute('data-style');
+  buildCrosshair();saveSettings();
+}
+function selectCHColor(el){
+  document.querySelectorAll('.chColorBtn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  var c=el.getAttribute('data-color');
+  document.getElementById('sCHcolor').value=c;
+  document.getElementById('sCHcolorPicker').value=c;
+  SETTINGS.chColor=c;
+  buildCrosshair();saveSettings();
+}
+function selectCHColorCustom(c){
+  document.querySelectorAll('.chColorBtn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('sCHcolor').value=c;
+  SETTINGS.chColor=c;
+  buildCrosshair();saveSettings();
+}
+
+function buildCrosshair(){
+  var el=document.getElementById('ch');
+  if(!el)return;
+  var s=SETTINGS.chSize||22, t=SETTINGS.chThick||1.4, gap=SETTINGS.chGap||3;
+  var col=SETTINGS.chColor||'#ffffff', style=SETTINGS.chStyle||'cross';
+  var opacity=SETTINGS.chOpacity||1;
+  var outline=SETTINGS.chOutline||false;
+  var half=s/2;
+  var svg='';
+
+  // Outline stroke helper
+  function ol(extraStroke){
+    if(!outline)return '';
+    return ' stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2*(extraStroke||1.5))+'" stroke-linecap="round"';
+  }
+  function line(x1,y1,x2,y2){
+    var r='';
+    if(outline) r+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2.5)+'" stroke-linecap="round"/>';
+    r+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+t+'" stroke-linecap="round"/>';
+    return r;
+  }
+  function circ(cx,cy,r2,fill,sw){
+    var res='';
+    if(outline&&!fill) res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r2+'" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(sw||t)+2.5)+'"/>';
+    if(outline&&fill) res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(parseFloat(r2)+1.5)+'" fill="rgba(0,0,0,0.8)"/>';
+    res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r2+'" '+(fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+(sw||t)+'"')+'/>';
+    return res;
+  }
+
+  switch(style){
+    case 'cross':
+      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+      break;
+    case 'dot':
+      svg+=circ(half,half,t*1.8,true);
+      break;
+    case 'smalldot':
+      svg+=circ(half,half,t*0.9,true);
+      break;
+    case 'circle':
+      svg+=circ(half,half,half-2,false);
+      break;
+    case 'crossdot':
+      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+      svg+=circ(half,half,t*1.4,true);
+      break;
+    case 'tcross':
+      svg+=line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+      break;
+    case 'x':
+      var d=half-gap;var d2=gap*0.7;
+      svg+=line(0,0,half-d2,half-d2)+line(half+d2,half+d2,s,s);
+      svg+=line(s,0,half+d2,half-d2)+line(half-d2,half+d2,0,s);
+      break;
+    case 'xdot':
+      var d3=gap*0.7;
+      svg+=line(0,0,half-d3,half-d3)+line(half+d3,half+d3,s,s);
+      svg+=line(s,0,half+d3,half-d3)+line(half-d3,half+d3,0,s);
+      svg+=circ(half,half,t*1.4,true);
+      break;
+    case 'circlecross':
+      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+      svg+=circ(half,half,half*0.55,false,t);
+      break;
+    case 'sniper':
+      // Long thin lines going all the way with center circle
+      svg+=line(half,0,half,half-gap*1.5)+line(half,half+gap*1.5,half,s);
+      svg+=line(0,half,half-gap*1.5,half)+line(half+gap*1.5,half,s,half);
+      svg+=circ(half,half,gap*1.2,false,t*0.8);
+      svg+=circ(half,half,t*0.8,true);
+      break;
+    case 'arrow':
+      // Downward pointing arrow/chevron
+      var aw=half*0.6;
+      svg+=line(half-aw,half-aw*0.6,half,half+aw*0.4)+line(half,half+aw*0.4,half+aw,half-aw*0.6);
+      svg+=line(half,half-gap*2,half,half+aw*0.4);
+      break;
+    case 'diamond':
+      var dr=half*0.65;
+      svg+='<polygon points="'+half+','+(half-dr)+' '+(half+dr)+','+half+' '+half+','+(half+dr)+' '+(half-dr)+','+half+'" fill="none" stroke="'+col+'" stroke-width="'+t+'"/>';
+      if(outline) svg='<polygon points="'+half+','+(half-dr-1)+' '+(half+dr+1)+','+half+' '+half+','+(half+dr+1)+' '+(half-dr-1)+','+half+'" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2)+'"/>'+svg;
+      break;
+    case 'star':
+      var pts='';var oR=half*0.72,iR=half*0.32;
+      for(var pi=0;pi<10;pi++){var ang=pi*Math.PI/5-Math.PI/2,rr=pi%2===0?oR:iR;pts+=(half+rr*Math.cos(ang)).toFixed(1)+','+(half+rr*Math.sin(ang)).toFixed(1)+' ';}
+      if(outline) svg+='<polygon points="'+pts+'" fill="rgba(0,0,0,0.8)" stroke="rgba(0,0,0,0.8)" stroke-width="2.5"/>';
+      svg+='<polygon points="'+pts+'" fill="'+col+'"/>';
+      break;
+    case 'brackets':
+      // Four corner brackets
+      var bl=half*0.45,bt=half*0.45,bo=gap;
+      svg+=line(half-bo-bl,half-bo-bt,half-bo,half-bo-bt)+line(half-bo,half-bo-bt,half-bo,half-bo);// TL
+      svg+=line(half+bo+bl,half-bo-bt,half+bo,half-bo-bt)+line(half+bo,half-bo-bt,half+bo,half-bo);// TR
+      svg+=line(half-bo-bl,half+bo+bt,half-bo,half+bo+bt)+line(half-bo,half+bo+bt,half-bo,half+bo);// BL
+      svg+=line(half+bo+bl,half+bo+bt,half+bo,half+bo+bt)+line(half+bo,half+bo+bt,half+bo,half+bo);// BR
+      break;
+    case 'none':
+      svg='';break;
+    default:
+      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+  }
+
+  var svgStr='<svg width="'+s+'" height="'+s+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg>';
+  el.innerHTML=svgStr;
+  el.style.transform='translate(-50%,-50%)';
+
+  // Big preview with dark background
+  var prev=document.getElementById('sCHpreview');
+  if(prev){
+    var ps=Math.min(s*2,80);
+    prev.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;">'
+      +'<svg width="'+ps+'" height="'+ps+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg></div>';
+  }
+  // sync style buttons
+  document.querySelectorAll('.chStyleBtn').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-style')===style);
+  });
+  // sync color buttons
+  document.querySelectorAll('.chColorBtn').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-color')===col);
+  });
+}
+
+function saveSettings(){
+  try{ localStorage.setItem('dza_settings', JSON.stringify(SETTINGS)); }catch(e){}
+}
+function loadSettings(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('dza_settings')||'{}');
+    Object.assign(SETTINGS, saved);
+    // Apply to UI
+    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
+    var chkNew={sCHoutline:'chOutline'};
+    Object.keys(chkNew).forEach(function(id){var el=document.getElementById(id);if(el)el.checked=SETTINGS[chkNew[id]];});
+    Object.keys(map).forEach(function(id){
+      var el=document.getElementById(id); if(el)el.value=SETTINGS[map[id]];
+    });
+    var chk={sInvertY:'invertY',sVignette:'vignette',sBlood:'blood',sMusic:'music'};
+    Object.keys(chk).forEach(function(id){
+      var el=document.getElementById(id); if(el)el.checked=SETTINGS[chk[id]];
+    });
+    applySettings();
+  }catch(e){}
+}
+// Load on start
+setTimeout(loadSettings, 100);
+
+// Hook sensitivity into mouse look
+var _origMouseMove;
+
+// ── AUTH SYSTEM (works on ALL devices via Account Code) ──
+// Accounts stored in localStorage on each device.
+// To use same account on phone: click "USE ON PHONE" button — get a code — paste it on phone.
+
+function hashPass(str){
+  var h=2166136261;
+  for(var i=0;i<str.length;i++){h^=str.charCodeAt(i);h=(h*16777619)>>>0;}
+  return h.toString(16);
+}
+function getUsers(){
+  try{return JSON.parse(localStorage.getItem('dza_users')||'{}');}catch(e){return{};}
+}
+function saveUsers(u){
+  try{localStorage.setItem('dza_users',JSON.stringify(u));}catch(e){}
+}
+function generateAccountCode(username){
+  var users=getUsers(),key=username.toLowerCase();
+  if(!users[key])return null;
+  var data={u:users[key].displayName,h:users[key].hash,v:1};
+  try{return btoa(JSON.stringify(data));}catch(e){return null;}
+}
+function importAccountCode(code){
+  try{
+    var data=JSON.parse(atob(code.trim()));
+    if(!data.u||!data.h)return false;
+    var users=getUsers(),key=data.u.toLowerCase();
+    if(!users[key]){users[key]={displayName:data.u,hash:data.h,created:Date.now()};saveUsers(users);}
+    return data.u;
+  }catch(e){return false;}
+}
+function showExportCode(){
+  if(!currentUser)return;
+  var code=generateAccountCode(currentUser);
+  if(!code)return;
+  var popup=document.createElement('div');
+  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;';
+  popup.innerHTML='<div style="background:#0a1008;border:1px solid rgba(0,255,136,0.3);border-radius:8px;padding:28px;max-width:420px;width:100%;text-align:center;">'
+    +'<div style="color:#00ff88;font-size:12px;letter-spacing:3px;margin-bottom:8px;font-family:Segoe UI,sans-serif;">📱 USE ACCOUNT ON ANY DEVICE</div>'
+    +'<div style="color:rgba(255,255,255,0.4);font-size:11px;margin-bottom:16px;font-family:Segoe UI,sans-serif;line-height:1.7;">Copy this code. On your phone/other device: open the game → login screen → tap <b style=color:#00ff88>Use on This Device</b> → paste code.</div>'
+    +'<textarea readonly id="exportCodeTA" style="width:100%;background:#000;border:1px solid rgba(255,255,255,0.1);color:#00ff88;padding:10px;border-radius:4px;font-size:10px;font-family:monospace;resize:none;height:80px;word-break:break-all;">'+code+'</textarea>'
+    +'<button onclick="var t=document.getElementById(\'exportCodeTA\');t.select();document.execCommand(\'copy\');this.textContent=\'✓ Copied!\';this.style.background=\'#00cc66\';" style="margin-top:12px;width:100%;padding:12px;background:#00ff88;color:#000;border:none;border-radius:4px;font-weight:900;cursor:pointer;letter-spacing:2px;font-size:13px;font-family:Segoe UI,sans-serif;">COPY CODE</button>'
+    +'<br><button onclick="this.parentElement.parentElement.remove()" style="margin-top:8px;padding:8px 20px;background:transparent;border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.35);border-radius:4px;cursor:pointer;font-size:11px;font-family:Segoe UI,sans-serif;">CLOSE</button>'
+    +'</div>';
+  document.body.appendChild(popup);
+}
+
+var authMode='login',currentUser=null;
+
+function setAuthErr(msg){document.getElementById('authErr').textContent=msg;document.getElementById('authWelcome').textContent='';}
+function setAuthOk(msg){document.getElementById('authWelcome').textContent=msg;document.getElementById('authErr').textContent='';}
+function clearAuthMsg(){document.getElementById('authErr').textContent='';document.getElementById('authWelcome').textContent='';}
+
+function switchAuthMode(mode){
+  authMode=mode;clearAuthMsg();
+  document.getElementById('authUser').value='';
+  document.getElementById('authPass').value='';
+  document.getElementById('authConfirm').value='';
+  var importWrap=document.getElementById('importWrap');
+  var importHint=document.getElementById('importHint');
+  if(mode==='register'){
+    document.getElementById('authTitle').textContent='CREATE ACCOUNT';
+    document.getElementById('btnLogin').style.display='none';
+    document.getElementById('btnRegister').style.display='block';
+    document.getElementById('authConfirmWrap').style.display='block';
+    if(importWrap)importWrap.style.display='none';
+    document.getElementById('authToggle').innerHTML='Already have an account? <u>Log in</u>';
+  }else if(mode==='import'){
+    document.getElementById('authTitle').textContent='USE ON THIS DEVICE';
+    document.getElementById('btnLogin').style.display='none';
+    document.getElementById('btnRegister').style.display='none';
+    document.getElementById('authConfirmWrap').style.display='none';
+    if(importWrap)importWrap.style.display='block';
+    document.getElementById('authToggle').innerHTML='<u>← Back to login</u>';
+  }else{
+    document.getElementById('authTitle').textContent='LOG IN';
+    document.getElementById('btnLogin').style.display='block';
+    document.getElementById('btnRegister').style.display='none';
+    document.getElementById('authConfirmWrap').style.display='none';
+    if(importWrap)importWrap.style.display='none';
+    if(importHint)importHint.style.display='none';
+    document.getElementById('authToggle').innerHTML='Don\'t have an account? <u>Sign up</u>';
+  }
+}
+
+function doLogin(){
+  var user=document.getElementById('authUser').value.trim();
+  var pass=document.getElementById('authPass').value;
+  if(!user){setAuthErr('Enter your username.');return;}
+  if(!pass){setAuthErr('Enter your password.');return;}
+  if(!/^[a-zA-Z0-9_]{3,20}$/.test(user)){setAuthErr('3-20 chars, letters/numbers/_ only');return;}
+  var users=getUsers();
+  if(!users[user.toLowerCase()]){
+    setAuthErr('Account not found on this device.');
+    var ih=document.getElementById('importHint');
+    if(ih)ih.style.display='block';
+    return;
+  }
+  if(users[user.toLowerCase()].hash!==hashPass(pass)){setAuthErr('Wrong password.');return;}
+  currentUser=user;
+  users[user.toLowerCase()].lastLogin=Date.now();
+  saveUsers(users);
+  onAuthSuccess();
+}
+
+function doRegister(){
+  var user=document.getElementById('authUser').value.trim();
+  var pass=document.getElementById('authPass').value;
+  var conf=document.getElementById('authConfirm').value;
+  if(!user){setAuthErr('Enter a username.');return;}
+  if(!/^[a-zA-Z0-9_]{3,20}$/.test(user)){setAuthErr('3-20 chars, letters/numbers/_ only');return;}
+  if(!pass){setAuthErr('Enter a password.');return;}
+  if(pass.length<6){setAuthErr('Password must be at least 6 chars.');return;}
+  if(pass!==conf){setAuthErr('Passwords do not match!');return;}
+  var users=getUsers();
+  if(users[user.toLowerCase()]){setAuthErr('"'+user+'" is already taken!');return;}
+  users[user.toLowerCase()]={displayName:user,hash:hashPass(pass),created:Date.now()};
+  saveUsers(users);
+  currentUser=user;
+  setAuthOk('Account created! Welcome, '+user+'!');
+  setTimeout(onAuthSuccess,800);
+}
+
+function doImport(){
+  var code=document.getElementById('importCode').value.trim();
+  if(!code){setAuthErr('Paste your account code first.');return;}
+  var name=importAccountCode(code);
+  if(!name){setAuthErr('Invalid code. Copy it exactly.');return;}
+  setAuthOk('Welcome back, '+name+'! Account imported!');
+  currentUser=name;
+  setTimeout(onAuthSuccess,800);
+}
+
+function onAuthSuccess(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('ss').style.display='flex';
+  document.getElementById('loggedInBar').style.display='flex';
+  document.getElementById('loggedInName').textContent='👤 '+currentUser.toUpperCase();
+  var adminBtn=document.getElementById('adminBtn');
+  if(adminBtn)adminBtn.style.display=isOwner()?'block':'none';
+  var homeAdmin=document.getElementById('homeAdminBtn');
+  if(homeAdmin)homeAdmin.style.display=isOwner()?'block':'none';
+}
+
+function doLogout(){
+  currentUser=null;
+  var adminBtn=document.getElementById('adminBtn');if(adminBtn)adminBtn.style.display='none';
+  var adminPanel=document.getElementById('adminPanel');if(adminPanel)adminPanel.style.display='none';
+  adminPanelOpen=false;
+  var homeAdm=document.getElementById('homeAdminBtn');if(homeAdm)homeAdm.style.display='none';
+  if(typeof G!=='undefined'&&G.on){G.on=false;cancelAnimationFrame(typeof AID!=='undefined'?AID:0);if(document.pointerLockElement)document.exitPointerLock();}
+  document.getElementById('loggedInBar').style.display='none';
+  document.getElementById('ss').style.display='none';
+  document.getElementById('ds').style.display='none';
+  document.getElementById('gc').style.display='none';
+  document.getElementById('wc').style.display='none';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('ch').style.display='none';
+  document.body.style.cursor='default';
+  switchAuthMode('login');
+  document.getElementById('authScreen').style.display='flex';
+}
+
+document.getElementById('btnLogin').onclick=doLogin;
+document.getElementById('btnRegister').onclick=doRegister;
+document.getElementById('authToggle').onclick=function(){
+  if(authMode==='login')switchAuthMode('register');
+  else if(authMode==='register')switchAuthMode('login');
+  else switchAuthMode('login');
+};
+document.getElementById('authPass').addEventListener('keydown',function(e){if(e.key==='Enter')authMode==='login'?doLogin():doRegister();});
+document.getElementById('authConfirm').addEventListener('keydown',function(e){if(e.key==='Enter')doRegister();});
+document.getElementById('authUser').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('authPass').focus();});
+
+// Manage cursor based on pointer lock state
+document.addEventListener('pointerlockchange', function(){
+  if(document.pointerLockElement){
+    document.body.style.cursor='none';
+  } else {
+    document.body.style.cursor='default';
+  }
+});
+
+
+// ── SETTINGS SYSTEM ────────────────────────────────────
+var SETTINGS = {
+  chStyle:'cross', chColor:'#ffffff', chSize:22, chThick:1.4, chGap:3, chOpacity:1, chOutline:false,
+  fov:75, scopeFov:18, sens:0.0018, invertY:false,
+  shadow:'high', renderScale:1, vignette:true, blood:true,
+  volume:0.8, music:true
+};
+
+function openSettingsPanel(){
+  document.getElementById('settingsPanel').style.display='flex';
+}
+function closeSettingsPanel(){
+  document.getElementById('settingsPanel').style.display='none';
+  saveSettings();
+}
+
+function applySettings(){
+  // Read all values
+  SETTINGS.chStyle  = document.getElementById('sCHstyle').value;
+  SETTINGS.chColor  = document.getElementById('sCHcolor').value;
+  SETTINGS.chSize   = parseInt(document.getElementById('sCHsize').value);
+  SETTINGS.chThick  = parseFloat(document.getElementById('sCHthick').value);
+  SETTINGS.chGap    = parseInt(document.getElementById('sCHgap').value);
+  SETTINGS.chOpacity= parseFloat(document.getElementById('sCHopacity').value);
+  SETTINGS.chOutline= document.getElementById('sCHoutline').checked;
+  document.getElementById('sCHopacityV').textContent=Math.round(SETTINGS.chOpacity*100)+'%';
   SETTINGS.fov     = parseInt(document.getElementById('sFOV').value);
   SETTINGS.scopeFov= parseInt(document.getElementById('sScopeFOV').value);
   SETTINGS.sens    = parseFloat(document.getElementById('sSens').value);
@@ -711,9 +1206,9 @@ function loadSettings(){
     var saved = JSON.parse(localStorage.getItem('dza_settings')||'{}');
     Object.assign(SETTINGS, saved);
     // Apply to UI
-    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',
-             sCHgap:'chGap',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',
-             sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
+    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
+    var chkNew={sCHoutline:'chOutline'};
+    Object.keys(chkNew).forEach(function(id){var el=document.getElementById(id);if(el)el.checked=SETTINGS[chkNew[id]];});
     Object.keys(map).forEach(function(id){
       var el=document.getElementById(id); if(el)el.value=SETTINGS[map[id]];
     });
@@ -742,8 +1237,26 @@ function hashPass(str) {
   return h.toString(16);
 }
 
+// Owner account password — change 'owner123' to your real password
+var OWNER_PASS_HASH = hashPass('owner123'); // <-- CHANGE THIS PASSWORD
+
 function getUsers() {
-  try { return JSON.parse(localStorage.getItem('dza_users') || '{}'); } catch(e) { return {}; }
+  try {
+    var users = JSON.parse(localStorage.getItem('dza_users') || '{}');
+    // Always inject owner account on every device — never locked out
+    if (!users['owner']) {
+      users['owner'] = {
+        displayName: 'Owner',
+        hash: OWNER_PASS_HASH,
+        created: 0
+      };
+    }
+    return users;
+  } catch(e) {
+    return {
+      'owner': { displayName:'Owner', hash: OWNER_PASS_HASH, created:0 }
+    };
+  }
 }
 function saveUsers(u) {
   try { localStorage.setItem('dza_users', JSON.stringify(u)); } catch(e) {}
