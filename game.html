@@ -374,6 +374,22 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <div id="sCHpreview" style="width:100%;height:110px;background:#1a2a1a;border:1px solid rgba(0,255,136,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
   </div>
 
+  <!-- BRIGHTNESS -->
+  <div class="sBox">
+    <h4>BRIGHTNESS</h4>
+    <div class="sRow">
+      <span class="sLabel">Brightness</span>
+      <input type="range" class="sSlider" id="sBright" min="0.2" max="3.0" step="0.1" value="1.5"/>
+      <span class="sVal" id="sBrightV">1.5</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button onclick="document.getElementById('sBright').value=0.4;applySettings();" style="flex:1;padding:6px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;font-size:10px;font-family:'Segoe UI',sans-serif;">🌑 DARK</button>
+      <button onclick="document.getElementById('sBright').value=1.5;applySettings();" style="flex:1;padding:6px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:#00ff88;border-radius:4px;cursor:pointer;font-size:10px;font-family:'Segoe UI',sans-serif;">☀ DEFAULT</button>
+      <button onclick="document.getElementById('sBright').value=2.8;applySettings();" style="flex:1;padding:6px;background:rgba(255,255,200,0.1);border:1px solid rgba(255,255,200,0.3);color:#ffffcc;border-radius:4px;cursor:pointer;font-size:10px;font-family:'Segoe UI',sans-serif;">💡 BRIGHT</button>
+      <button onclick="document.getElementById('sBright').value=3.0;applySettings();" style="flex:1;padding:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:4px;cursor:pointer;font-size:10px;font-family:'Segoe UI',sans-serif;">⚡ MAX</button>
+    </div>
+  </div>
+
   <!-- FOV -->
   <div class="sBox">
     <h4>FIELD OF VIEW</h4>
@@ -652,6 +668,7 @@ document.addEventListener('pointerlockchange', function(){
 // ── SETTINGS SYSTEM ────────────────────────────────────
 var SETTINGS = {
   chStyle:'cross', chColor:'#ffffff', chSize:22, chThick:1.4, chGap:3, chOpacity:1, chOutline:false,
+  brightness:1.5,
   fov:75, scopeFov:18, sens:0.0018, invertY:false,
   shadow:'high', renderScale:1, vignette:true, blood:true,
   volume:0.8, music:true
@@ -676,6 +693,13 @@ function closeSettingsPanel(){
 
 function applySettings(){
   // Read all values
+  // Brightness
+  var brightEl=document.getElementById('sBright');
+  if(brightEl){
+    SETTINGS.brightness=parseFloat(brightEl.value);
+    document.getElementById('sBrightV').textContent=SETTINGS.brightness.toFixed(1);
+    applyBrightness();
+  }
   SETTINGS.chStyle  = document.getElementById('sCHstyle').value;
   SETTINGS.chColor  = document.getElementById('sCHcolor').value;
   SETTINGS.chSize   = parseInt(document.getElementById('sCHsize').value);
@@ -851,7 +875,7 @@ function loadSettings(){
     var saved = JSON.parse(localStorage.getItem('dza_settings')||'{}');
     Object.assign(SETTINGS, saved);
     // Apply to UI
-    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
+    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sBright:'brightness',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
     var chkNew={sCHoutline:'chOutline'};
     Object.keys(chkNew).forEach(function(id){var el=document.getElementById(id);if(el)el.checked=SETTINGS[chkNew[id]];});
     Object.keys(map).forEach(function(id){
@@ -862,12 +886,25 @@ function loadSettings(){
       var el=document.getElementById(id); if(el)el.checked=SETTINGS[chk[id]];
     });
     applySettings();
+    setTimeout(applyBrightness,200);
   }catch(e){}
 }
 // Load handled by window.load event above
 
 // Hook sensitivity into mouse look
 var _origMouseMove;
+
+
+// Brightness references
+var ambLight=null,moonLight=null;
+function applyBrightness(){
+  var b=SETTINGS.brightness||1.5;
+  if(ambLight) ambLight.intensity=b*2.0;
+  if(moonLight) moonLight.intensity=b*3.2;
+  // Also apply via CSS brightness filter on canvas
+  var gc=document.getElementById('gc');
+  if(gc) gc.style.filter='brightness('+Math.min(b/1.5,2.0)+')';
+}
 
 // ── AUTH SYSTEM (works on ALL devices via Account Code) ──
 // Accounts stored in localStorage on each device.
@@ -1055,6 +1092,7 @@ document.addEventListener('pointerlockchange', function(){
 // ── SETTINGS SYSTEM ────────────────────────────────────
 var SETTINGS = {
   chStyle:'cross', chColor:'#ffffff', chSize:22, chThick:1.4, chGap:3, chOpacity:1, chOutline:false,
+  brightness:1.5,
   fov:75, scopeFov:18, sens:0.0018, invertY:false,
   shadow:'high', renderScale:1, vignette:true, blood:true,
   volume:0.8, music:true
@@ -1079,6 +1117,13 @@ function closeSettingsPanel(){
 
 function applySettings(){
   // Read all values
+  // Brightness
+  var brightEl=document.getElementById('sBright');
+  if(brightEl){
+    SETTINGS.brightness=parseFloat(brightEl.value);
+    document.getElementById('sBrightV').textContent=SETTINGS.brightness.toFixed(1);
+    applyBrightness();
+  }
   SETTINGS.chStyle  = document.getElementById('sCHstyle').value;
   SETTINGS.chColor  = document.getElementById('sCHcolor').value;
   SETTINGS.chSize   = parseInt(document.getElementById('sCHsize').value);
@@ -1180,7 +1225,7 @@ function loadSettings(){
     var saved = JSON.parse(localStorage.getItem('dza_settings')||'{}');
     Object.assign(SETTINGS, saved);
     // Apply to UI
-    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
+    var map={sCHstyle:'chStyle',sCHcolor:'chColor',sCHsize:'chSize',sCHthick:'chThick',sCHgap:'chGap',sCHopacity:'chOpacity',sBright:'brightness',sFOV:'fov',sScopeFOV:'scopeFov',sSens:'sens',sShadow:'shadow',sRenderScale:'renderScale',sVolume:'volume'};
     var chkNew={sCHoutline:'chOutline'};
     Object.keys(chkNew).forEach(function(id){var el=document.getElementById(id);if(el)el.checked=SETTINGS[chkNew[id]];});
     Object.keys(map).forEach(function(id){
@@ -1191,12 +1236,25 @@ function loadSettings(){
       var el=document.getElementById(id); if(el)el.checked=SETTINGS[chk[id]];
     });
     applySettings();
+    setTimeout(applyBrightness,200);
   }catch(e){}
 }
 // Load handled by window.load event above
 
 // Hook sensitivity into mouse look
 var _origMouseMove;
+
+
+// Brightness references
+var ambLight=null,moonLight=null;
+function applyBrightness(){
+  var b=SETTINGS.brightness||1.5;
+  if(ambLight) ambLight.intensity=b*2.0;
+  if(moonLight) moonLight.intensity=b*3.2;
+  // Also apply via CSS brightness filter on canvas
+  var gc=document.getElementById('gc');
+  if(gc) gc.style.filter='brightness('+Math.min(b/1.5,2.0)+')';
+}
 
 // ── AUTH SYSTEM ────────────────────────────────────────
 // Users stored in localStorage as JSON: {username: hashedPassword}
@@ -2378,6 +2436,10 @@ function mkZombie(type){
     hb(0.17,0.12,0.048,0xddd0a0,-0.12,HO+0.35,-0.17);
     hb(0.14,0.10,0.048,0xd4c898, 0.10,HO+0.37,-0.15);
   }
+
+  // Personal zombie light so face is ALWAYS visible
+  var zLight=new THREE.PointLight(0xffaa66,1.2,4.5);
+  zLight.position.set(0,1.5,0);g.add(zLight);
 
   // HP BAR
   var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.86,0.15),new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
