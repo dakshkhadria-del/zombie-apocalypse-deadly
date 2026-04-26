@@ -304,63 +304,56 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
   <div class="sBox">
     <h4>CROSSHAIR</h4>
 
-    <!-- Style picker grid -->
-    <div class="sLabel" style="margin-bottom:10px;">Style</div>
-    <div id="chStyleGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
-      <div class="chStyleBtn" data-style="cross" title="Classic Cross">+</div>
-      <div class="chStyleBtn" data-style="dot" title="Dot">•</div>
-      <div class="chStyleBtn" data-style="circle" title="Circle">○</div>
-      <div class="chStyleBtn" data-style="crossdot" title="Cross + Dot">⊕</div>
-      <div class="chStyleBtn" data-style="tcross" title="T-Cross">⊥</div>
-      <div class="chStyleBtn" data-style="x" title="X Shape">×</div>
-      <div class="chStyleBtn" data-style="xdot" title="X + Dot">✕</div>
-      <div class="chStyleBtn" data-style="circlecross" title="Circle + Cross">⊗</div>
-      <div class="chStyleBtn" data-style="smalldot" title="Small Dot">·</div>
-      <div class="chStyleBtn" data-style="sniper" title="Sniper">⌖</div>
-      <div class="chStyleBtn" data-style="arrow" title="Arrow">▽</div>
-      <div class="chStyleBtn" data-style="diamond" title="Diamond">◇</div>
-      <div class="chStyleBtn" data-style="star" title="Star">★</div>
-      <div class="chStyleBtn" data-style="brackets" title="Brackets">⌐</div>
-      <div class="chStyleBtn" data-style="none" title="None (Off)">∅</div>
+    <div class="sLabel" style="margin-bottom:8px;">Style</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
+      <div class="chStyleBtn" data-style="cross">+</div>
+      <div class="chStyleBtn" data-style="dot">•</div>
+      <div class="chStyleBtn" data-style="circle">○</div>
+      <div class="chStyleBtn" data-style="crossdot">⊕</div>
+      <div class="chStyleBtn" data-style="tcross">⊥</div>
+      <div class="chStyleBtn" data-style="x">×</div>
+      <div class="chStyleBtn" data-style="xdot">✕</div>
+      <div class="chStyleBtn" data-style="circlecross">⊗</div>
+      <div class="chStyleBtn" data-style="smalldot">·</div>
+      <div class="chStyleBtn" data-style="sniper">⌖</div>
+      <div class="chStyleBtn" data-style="arrow">▽</div>
+      <div class="chStyleBtn" data-style="diamond">◇</div>
+      <div class="chStyleBtn" data-style="star">★</div>
+      <div class="chStyleBtn" data-style="brackets">⌐</div>
+      <div class="chStyleBtn" data-style="none">∅</div>
     </div>
     <input type="hidden" id="sCHstyle" value="cross"/>
 
-    <!-- Color picker -->
-    <div class="sLabel" style="margin-bottom:10px;">Color</div>
+    <div class="sLabel" style="margin-bottom:8px;">Color</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
-      <div class="chColorBtn" data-color="#ffffff" style="background:#ffffff;" title="White"></div>
-      <div class="chColorBtn" data-color="#00ff88" style="background:#00ff88;" title="Mint Green"></div>
-      <div class="chColorBtn" data-color="#00ff00" style="background:#00ff00;" title="Green"></div>
-      <div class="chColorBtn" data-color="#ff3300" style="background:#ff3300;" title="Red"></div>
-      <div class="chColorBtn" data-color="#ff8800" style="background:#ff8800;" title="Orange"></div>
-      <div class="chColorBtn" data-color="#ffff00" style="background:#ffff00;" title="Yellow"></div>
-      <div class="chColorBtn" data-color="#00ffff" style="background:#00ffff;" title="Cyan"></div>
-      <div class="chColorBtn" data-color="#ff00ff" style="background:#ff00ff;" title="Pink"></div>
-      <div class="chColorBtn" data-color="#aa44ff" style="background:#aa44ff;" title="Purple"></div>
-      <div class="chColorBtn" data-color="#ff4488" style="background:#ff4488;" title="Hot Pink"></div>
-      <div class="chColorBtn" data-color="#44aaff" style="background:#44aaff;" title="Sky Blue"></div>
-      <div class="chColorBtn" data-color="#ffcc00" style="background:#ffcc00;" title="Gold"></div>
-      <!-- Custom color picker -->
-      <label title="Custom Color" style="position:relative;cursor:pointer;">
+      <div class="chColorBtn" data-color="#ffffff" style="background:#ffffff;"></div>
+      <div class="chColorBtn" data-color="#00ff88" style="background:#00ff88;"></div>
+      <div class="chColorBtn" data-color="#00ff00" style="background:#00ff00;"></div>
+      <div class="chColorBtn" data-color="#ff3300" style="background:#ff3300;"></div>
+      <div class="chColorBtn" data-color="#ff8800" style="background:#ff8800;"></div>
+      <div class="chColorBtn" data-color="#ffff00" style="background:#ffff00;"></div>
+      <div class="chColorBtn" data-color="#00ffff" style="background:#00ffff;"></div>
+      <div class="chColorBtn" data-color="#ff00ff" style="background:#ff00ff;"></div>
+      <div class="chColorBtn" data-color="#aa44ff" style="background:#aa44ff;"></div>
+      <div class="chColorBtn" data-color="#ff4488" style="background:#ff4488;"></div>
+      <div class="chColorBtn" data-color="#44aaff" style="background:#44aaff;"></div>
+      <div class="chColorBtn" data-color="#ffcc00" style="background:#ffcc00;"></div>
+      <label style="position:relative;cursor:pointer;">
         <div style="width:28px;height:28px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid rgba(255,255,255,0.3);"></div>
         <input type="color" id="sCHcolorPicker" style="position:absolute;opacity:0;width:0;height:0;"/>
       </label>
     </div>
     <input type="hidden" id="sCHcolor" value="#ffffff"/>
 
-    <!-- Outline toggle -->
     <div class="sRow">
-      <span class="sLabel">Outline (Black Border)</span>
+      <span class="sLabel">Outline</span>
       <label class="sToggle"><input type="checkbox" id="sCHoutline"/><span class="tslide"></span></label>
     </div>
-
-    <!-- Opacity -->
     <div class="sRow">
       <span class="sLabel">Opacity</span>
       <input type="range" class="sSlider" id="sCHopacity" min="0.1" max="1" step="0.05" value="1"/>
       <span class="sVal" id="sCHopacityV">100%</span>
     </div>
-
     <div class="sRow">
       <span class="sLabel">Size</span>
       <input type="range" class="sSlider" id="sCHsize" min="12" max="60" value="22"/>
@@ -377,10 +370,8 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
       <span class="sVal" id="sCHgapV">3</span>
     </div>
 
-    <!-- Live Preview (big) -->
-    <div class="sLabel" style="margin-bottom:8px;margin-top:4px;">Live Preview</div>
-    <div id="sCHpreview" style="width:100%;height:100px;background:linear-gradient(135deg,#0a1e0a,#050f05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;display:flex;align-items:center;justify-content:center;">
-    </div>
+    <div class="sLabel" style="margin-top:8px;margin-bottom:8px;">Live Preview</div>
+    <div id="sCHpreview" style="width:100%;height:110px;background:#1a2a1a;border:1px solid rgba(0,255,136,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
   </div>
 
   <!-- FOV -->
@@ -668,7 +659,15 @@ var SETTINGS = {
 
 function openSettingsPanel(){
   document.getElementById('settingsPanel').style.display='flex';
-  setTimeout(buildCrosshair, 50);
+  // Force sync all slider display values first
+  var sz=document.getElementById('sCHsize');if(sz){SETTINGS.chSize=parseInt(sz.value);document.getElementById('sCHsizeV').textContent=sz.value;}
+  var th=document.getElementById('sCHthick');if(th){SETTINGS.chThick=parseFloat(th.value);document.getElementById('sCHthickV').textContent=th.value;}
+  var gp=document.getElementById('sCHgap');if(gp){SETTINGS.chGap=parseInt(gp.value);document.getElementById('sCHgapV').textContent=gp.value;}
+  var op=document.getElementById('sCHopacity');if(op){SETTINGS.chOpacity=parseFloat(op.value);document.getElementById('sCHopacityV').textContent=Math.round(op.value*100)+'%';}
+  // Rebuild immediately and again after a tick (for DOM to settle)
+  buildCrosshair();
+  setTimeout(buildCrosshair, 100);
+  setTimeout(buildCrosshair, 300);
 }
 function closeSettingsPanel(){
   document.getElementById('settingsPanel').style.display='none';
@@ -755,122 +754,90 @@ function selectCHColorCustom(c){
 }
 
 function buildCrosshair(){
-  var el=document.getElementById('ch');
-  if(!el)return;
-  var s=SETTINGS.chSize||22, t=SETTINGS.chThick||1.4, gap=SETTINGS.chGap||3;
-  var col=SETTINGS.chColor||'#ffffff', style=SETTINGS.chStyle||'cross';
-  var opacity=SETTINGS.chOpacity||1;
+  var s=parseInt(SETTINGS.chSize)||22;
+  var t=parseFloat(SETTINGS.chThick)||1.4;
+  var gap=parseInt(SETTINGS.chGap)||3;
+  var col=SETTINGS.chColor||'#ffffff';
+  var style=SETTINGS.chStyle||'cross';
+  var opacity=parseFloat(SETTINGS.chOpacity)||1;
   var outline=SETTINGS.chOutline||false;
   var half=s/2;
-  var svg='';
 
-  // Outline stroke helper
-  function ol(extraStroke){
-    if(!outline)return '';
-    return ' stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2*(extraStroke||1.5))+'" stroke-linecap="round"';
-  }
-  function line(x1,y1,x2,y2){
+  function ln(x1,y1,x2,y2){
     var r='';
-    if(outline) r+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2.5)+'" stroke-linecap="round"/>';
+    if(outline)r+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(0,0,0,0.9)" stroke-width="'+(t+2.5)+'" stroke-linecap="round"/>';
     r+='<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+col+'" stroke-width="'+t+'" stroke-linecap="round"/>';
     return r;
   }
-  function circ(cx,cy,r2,fill,sw){
+  function cr(cx,cy,r2,fill,sw){
     var res='';
-    if(outline&&!fill) res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r2+'" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(sw||t)+2.5)+'"/>';
-    if(outline&&fill) res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(parseFloat(r2)+1.5)+'" fill="rgba(0,0,0,0.8)"/>';
+    if(outline&&!fill)res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r2+'" fill="none" stroke="rgba(0,0,0,0.9)" stroke-width="'+(parseFloat(sw||t)+2.5)+'"/>';
+    if(outline&&fill)res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(r2+1.5)+'" fill="rgba(0,0,0,0.9)"/>';
     res+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r2+'" '+(fill?'fill="'+col+'"':'fill="none" stroke="'+col+'" stroke-width="'+(sw||t)+'"')+'/>';
     return res;
   }
 
+  var svg='';
   switch(style){
-    case 'cross':
-      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
-      break;
-    case 'dot':
-      svg+=circ(half,half,t*1.8,true);
-      break;
-    case 'smalldot':
-      svg+=circ(half,half,t*0.9,true);
-      break;
-    case 'circle':
-      svg+=circ(half,half,half-2,false);
-      break;
-    case 'crossdot':
-      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
-      svg+=circ(half,half,t*1.4,true);
-      break;
-    case 'tcross':
-      svg+=line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
-      break;
+    case 'cross':    svg+=ln(half,0,half,half-gap)+ln(half,half+gap,half,s)+ln(0,half,half-gap,half)+ln(half+gap,half,s,half);break;
+    case 'dot':      svg+=cr(half,half,t*1.8,true);break;
+    case 'smalldot': svg+=cr(half,half,t*0.9,true);break;
+    case 'circle':   svg+=cr(half,half,half-2,false);break;
+    case 'crossdot': svg+=ln(half,0,half,half-gap)+ln(half,half+gap,half,s)+ln(0,half,half-gap,half)+ln(half+gap,half,s,half)+cr(half,half,t*1.4,true);break;
+    case 'tcross':   svg+=ln(half,half+gap,half,s)+ln(0,half,half-gap,half)+ln(half+gap,half,s,half);break;
     case 'x':
-      var d=half-gap;var d2=gap*0.7;
-      svg+=line(0,0,half-d2,half-d2)+line(half+d2,half+d2,s,s);
-      svg+=line(s,0,half+d2,half-d2)+line(half-d2,half+d2,0,s);
-      break;
+      var d2=gap*0.7;
+      svg+=ln(0,0,half-d2,half-d2)+ln(half+d2,half+d2,s,s)+ln(s,0,half+d2,half-d2)+ln(half-d2,half+d2,0,s);break;
     case 'xdot':
       var d3=gap*0.7;
-      svg+=line(0,0,half-d3,half-d3)+line(half+d3,half+d3,s,s);
-      svg+=line(s,0,half+d3,half-d3)+line(half-d3,half+d3,0,s);
-      svg+=circ(half,half,t*1.4,true);
-      break;
+      svg+=ln(0,0,half-d3,half-d3)+ln(half+d3,half+d3,s,s)+ln(s,0,half+d3,half-d3)+ln(half-d3,half+d3,0,s)+cr(half,half,t*1.4,true);break;
     case 'circlecross':
-      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
-      svg+=circ(half,half,half*0.55,false,t);
-      break;
+      svg+=ln(half,0,half,half-gap)+ln(half,half+gap,half,s)+ln(0,half,half-gap,half)+ln(half+gap,half,s,half)+cr(half,half,half*0.55,false,t);break;
     case 'sniper':
-      // Long thin lines going all the way with center circle
-      svg+=line(half,0,half,half-gap*1.5)+line(half,half+gap*1.5,half,s);
-      svg+=line(0,half,half-gap*1.5,half)+line(half+gap*1.5,half,s,half);
-      svg+=circ(half,half,gap*1.2,false,t*0.8);
-      svg+=circ(half,half,t*0.8,true);
-      break;
+      svg+=ln(half,0,half,half-gap*1.5)+ln(half,half+gap*1.5,half,s)+ln(0,half,half-gap*1.5,half)+ln(half+gap*1.5,half,s,half);
+      svg+=cr(half,half,gap*1.2,false,t*0.8)+cr(half,half,t*0.8,true);break;
     case 'arrow':
-      // Downward pointing arrow/chevron
       var aw=half*0.6;
-      svg+=line(half-aw,half-aw*0.6,half,half+aw*0.4)+line(half,half+aw*0.4,half+aw,half-aw*0.6);
-      svg+=line(half,half-gap*2,half,half+aw*0.4);
-      break;
+      svg+=ln(half-aw,half-aw*0.6,half,half+aw*0.4)+ln(half,half+aw*0.4,half+aw,half-aw*0.6)+ln(half,half-gap*2,half,half+aw*0.4);break;
     case 'diamond':
       var dr=half*0.65;
-      svg+='<polygon points="'+half+','+(half-dr)+' '+(half+dr)+','+half+' '+half+','+(half+dr)+' '+(half-dr)+','+half+'" fill="none" stroke="'+col+'" stroke-width="'+t+'"/>';
-      if(outline) svg='<polygon points="'+half+','+(half-dr-1)+' '+(half+dr+1)+','+half+' '+half+','+(half+dr+1)+' '+(half-dr-1)+','+half+'" fill="none" stroke="rgba(0,0,0,0.8)" stroke-width="'+(parseFloat(t)+2)+'"/>'+svg;
-      break;
+      if(outline)svg+='<polygon points="'+half+','+(half-dr-1)+' '+(half+dr+1)+','+half+' '+half+','+(half+dr+1)+' '+(half-dr-1)+','+half+'" fill="none" stroke="rgba(0,0,0,0.9)" stroke-width="'+(t+2)+'"/>';
+      svg+='<polygon points="'+half+','+(half-dr)+' '+(half+dr)+','+half+' '+half+','+(half+dr)+' '+(half-dr)+','+half+'" fill="none" stroke="'+col+'" stroke-width="'+t+'"/>';break;
     case 'star':
-      var pts='';var oR=half*0.72,iR=half*0.32;
-      for(var pi=0;pi<10;pi++){var ang=pi*Math.PI/5-Math.PI/2,rr=pi%2===0?oR:iR;pts+=(half+rr*Math.cos(ang)).toFixed(1)+','+(half+rr*Math.sin(ang)).toFixed(1)+' ';}
-      if(outline) svg+='<polygon points="'+pts+'" fill="rgba(0,0,0,0.8)" stroke="rgba(0,0,0,0.8)" stroke-width="2.5"/>';
-      svg+='<polygon points="'+pts+'" fill="'+col+'"/>';
-      break;
+      var pts='',oR=half*0.72,iR=half*0.32;
+      for(var pi2=0;pi2<10;pi2++){var ang2=pi2*Math.PI/5-Math.PI/2,rr2=pi2%2===0?oR:iR;pts+=(half+rr2*Math.cos(ang2)).toFixed(1)+','+(half+rr2*Math.sin(ang2)).toFixed(1)+' ';}
+      if(outline)svg+='<polygon points="'+pts+'" fill="rgba(0,0,0,0.9)" stroke="rgba(0,0,0,0.9)" stroke-width="2.5"/>';
+      svg+='<polygon points="'+pts+'" fill="'+col+'"/>';break;
     case 'brackets':
-      // Four corner brackets
-      var bl=half*0.45,bt=half*0.45,bo=gap;
-      svg+=line(half-bo-bl,half-bo-bt,half-bo,half-bo-bt)+line(half-bo,half-bo-bt,half-bo,half-bo);// TL
-      svg+=line(half+bo+bl,half-bo-bt,half+bo,half-bo-bt)+line(half+bo,half-bo-bt,half+bo,half-bo);// TR
-      svg+=line(half-bo-bl,half+bo+bt,half-bo,half+bo+bt)+line(half-bo,half+bo+bt,half-bo,half+bo);// BL
-      svg+=line(half+bo+bl,half+bo+bt,half+bo,half+bo+bt)+line(half+bo,half+bo+bt,half+bo,half+bo);// BR
-      break;
-    case 'none':
-      svg='';break;
-    default:
-      svg+=line(half,0,half,half-gap)+line(half,half+gap,half,s)+line(0,half,half-gap,half)+line(half+gap,half,s,half);
+      var bl=half*0.42,bgo=gap+2;
+      svg+=ln(half-bgo-bl,half-bgo-bl,half-bgo,half-bgo-bl)+ln(half-bgo,half-bgo-bl,half-bgo,half-bgo);
+      svg+=ln(half+bgo+bl,half-bgo-bl,half+bgo,half-bgo-bl)+ln(half+bgo,half-bgo-bl,half+bgo,half-bgo);
+      svg+=ln(half-bgo-bl,half+bgo+bl,half-bgo,half+bgo+bl)+ln(half-bgo,half+bgo+bl,half-bgo,half+bgo);
+      svg+=ln(half+bgo+bl,half+bgo+bl,half+bgo,half+bgo+bl)+ln(half+bgo,half+bgo+bl,half+bgo,half+bgo);break;
+    case 'none': svg='';break;
+    default: svg+=ln(half,0,half,half-gap)+ln(half,half+gap,half,s)+ln(0,half,half-gap,half)+ln(half+gap,half,s,half);
   }
 
   var svgStr='<svg width="'+s+'" height="'+s+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg>';
-  el.innerHTML=svgStr;
-  el.style.transform='translate(-50%,-50%)';
 
-  // Live preview
+  // Apply to game crosshair
+  var el=document.getElementById('ch');
+  if(el){el.innerHTML=svgStr;el.style.transform='translate(-50%,-50%)';}
+
+  // Live preview — render bigger version centered
   var prev=document.getElementById('sCHpreview');
   if(prev){
-    var ps=Math.max(s, 60);
-    prev.innerHTML='<svg width="'+ps+'" height="'+ps+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg>';
+    var scale=Math.min(3, 90/Math.max(s,1));
+    var ps=Math.round(s*scale);
+    var bigSvg='<svg width="'+ps+'" height="'+ps+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg>';
+    prev.innerHTML=bigSvg;
   }
-  // sync style buttons
+
+  // Highlight active style button
   document.querySelectorAll('.chStyleBtn').forEach(function(b){
     b.classList.toggle('active',b.getAttribute('data-style')===style);
   });
-  // sync color buttons
+  // Highlight active color button
   document.querySelectorAll('.chColorBtn').forEach(function(b){
     b.classList.toggle('active',b.getAttribute('data-color')===col);
   });
@@ -1095,7 +1062,15 @@ var SETTINGS = {
 
 function openSettingsPanel(){
   document.getElementById('settingsPanel').style.display='flex';
-  setTimeout(buildCrosshair, 50);
+  // Force sync all slider display values first
+  var sz=document.getElementById('sCHsize');if(sz){SETTINGS.chSize=parseInt(sz.value);document.getElementById('sCHsizeV').textContent=sz.value;}
+  var th=document.getElementById('sCHthick');if(th){SETTINGS.chThick=parseFloat(th.value);document.getElementById('sCHthickV').textContent=th.value;}
+  var gp=document.getElementById('sCHgap');if(gp){SETTINGS.chGap=parseInt(gp.value);document.getElementById('sCHgapV').textContent=gp.value;}
+  var op=document.getElementById('sCHopacity');if(op){SETTINGS.chOpacity=parseFloat(op.value);document.getElementById('sCHopacityV').textContent=Math.round(op.value*100)+'%';}
+  // Rebuild immediately and again after a tick (for DOM to settle)
+  buildCrosshair();
+  setTimeout(buildCrosshair, 100);
+  setTimeout(buildCrosshair, 300);
 }
 function closeSettingsPanel(){
   document.getElementById('settingsPanel').style.display='none';
@@ -3103,6 +3078,18 @@ window.addEventListener('load', function(){
   // Load saved settings
   loadSettings();
   buildCrosshair();
+});
+
+
+// Force crosshair preview on settings open
+document.getElementById('settingsBtn') && document.getElementById('settingsBtn').addEventListener('click', function(){
+  setTimeout(function(){
+    // Direct inject to verify preview works
+    var prev = document.getElementById('sCHpreview');
+    if(prev && !prev.innerHTML.trim()){
+      buildCrosshair();
+    }
+  }, 200);
 });
 
 </script>
