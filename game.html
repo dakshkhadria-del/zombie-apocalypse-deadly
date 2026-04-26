@@ -65,9 +65,9 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 
 #settingsBtn{margin-top:10px;padding:9px 28px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);font-size:11px;font-weight:600;letter-spacing:3px;cursor:pointer;border-radius:4px;font-family:'Segoe UI',sans-serif;transition:all 0.2s;}
 #settingsBtn:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
-#settingsPanel{position:fixed;inset:0;z-index:99998;background:rgba(2,6,2,0.97);display:none;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;}
-#settingsPanel h2{color:#00ff88;font-size:16px;letter-spacing:5px;margin-bottom:24px;font-family:'Segoe UI',sans-serif;font-weight:700;}
-.sBox{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px 24px;width:440px;max-width:90vw;margin-bottom:16px;}
+#settingsPanel{position:fixed;inset:0;z-index:99998;background:rgba(2,6,2,0.97);display:none;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:scroll;overflow-x:hidden;padding:30px 16px 40px;-webkit-overflow-scrolling:touch;}
+#settingsPanel h2{color:#00ff88;font-size:16px;letter-spacing:5px;margin-bottom:24px;font-family:'Segoe UI',sans-serif;font-weight:700;margin-top:10px;}
+.sBox{background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px 24px;width:440px;max-width:96vw;margin-bottom:16px;box-sizing:border-box;}
 .sBox h4{color:rgba(255,255,255,0.4);font-size:9px;letter-spacing:3px;margin-bottom:14px;font-family:'Segoe UI',sans-serif;}
 .sRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .sLabel{color:rgba(255,255,255,0.7);font-size:11px;font-family:'Segoe UI',sans-serif;letter-spacing:1px;}
@@ -307,43 +307,43 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <!-- Style picker grid -->
     <div class="sLabel" style="margin-bottom:10px;">Style</div>
     <div id="chStyleGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;">
-      <div class="chStyleBtn" data-style="cross" title="Classic Cross" onclick="selectCHStyle(this)">+</div>
-      <div class="chStyleBtn" data-style="dot" title="Dot" onclick="selectCHStyle(this)">•</div>
-      <div class="chStyleBtn" data-style="circle" title="Circle" onclick="selectCHStyle(this)">○</div>
-      <div class="chStyleBtn" data-style="crossdot" title="Cross + Dot" onclick="selectCHStyle(this)">⊕</div>
-      <div class="chStyleBtn" data-style="tcross" title="T-Cross" onclick="selectCHStyle(this)">⊥</div>
-      <div class="chStyleBtn" data-style="x" title="X Shape" onclick="selectCHStyle(this)">×</div>
-      <div class="chStyleBtn" data-style="xdot" title="X + Dot" onclick="selectCHStyle(this)">✕</div>
-      <div class="chStyleBtn" data-style="circlecross" title="Circle + Cross" onclick="selectCHStyle(this)">⊗</div>
-      <div class="chStyleBtn" data-style="smalldot" title="Small Dot" onclick="selectCHStyle(this)">·</div>
-      <div class="chStyleBtn" data-style="sniper" title="Sniper" onclick="selectCHStyle(this)">⌖</div>
-      <div class="chStyleBtn" data-style="arrow" title="Arrow" onclick="selectCHStyle(this)">▽</div>
-      <div class="chStyleBtn" data-style="diamond" title="Diamond" onclick="selectCHStyle(this)">◇</div>
-      <div class="chStyleBtn" data-style="star" title="Star" onclick="selectCHStyle(this)">★</div>
-      <div class="chStyleBtn" data-style="brackets" title="Brackets" onclick="selectCHStyle(this)">⌐</div>
-      <div class="chStyleBtn" data-style="none" title="None (Off)" onclick="selectCHStyle(this)">∅</div>
+      <div class="chStyleBtn" data-style="cross" title="Classic Cross">+</div>
+      <div class="chStyleBtn" data-style="dot" title="Dot">•</div>
+      <div class="chStyleBtn" data-style="circle" title="Circle">○</div>
+      <div class="chStyleBtn" data-style="crossdot" title="Cross + Dot">⊕</div>
+      <div class="chStyleBtn" data-style="tcross" title="T-Cross">⊥</div>
+      <div class="chStyleBtn" data-style="x" title="X Shape">×</div>
+      <div class="chStyleBtn" data-style="xdot" title="X + Dot">✕</div>
+      <div class="chStyleBtn" data-style="circlecross" title="Circle + Cross">⊗</div>
+      <div class="chStyleBtn" data-style="smalldot" title="Small Dot">·</div>
+      <div class="chStyleBtn" data-style="sniper" title="Sniper">⌖</div>
+      <div class="chStyleBtn" data-style="arrow" title="Arrow">▽</div>
+      <div class="chStyleBtn" data-style="diamond" title="Diamond">◇</div>
+      <div class="chStyleBtn" data-style="star" title="Star">★</div>
+      <div class="chStyleBtn" data-style="brackets" title="Brackets">⌐</div>
+      <div class="chStyleBtn" data-style="none" title="None (Off)">∅</div>
     </div>
     <input type="hidden" id="sCHstyle" value="cross"/>
 
     <!-- Color picker -->
     <div class="sLabel" style="margin-bottom:10px;">Color</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
-      <div class="chColorBtn" data-color="#ffffff" style="background:#ffffff;" onclick="selectCHColor(this)" title="White"></div>
-      <div class="chColorBtn" data-color="#00ff88" style="background:#00ff88;" onclick="selectCHColor(this)" title="Mint Green"></div>
-      <div class="chColorBtn" data-color="#00ff00" style="background:#00ff00;" onclick="selectCHColor(this)" title="Green"></div>
-      <div class="chColorBtn" data-color="#ff3300" style="background:#ff3300;" onclick="selectCHColor(this)" title="Red"></div>
-      <div class="chColorBtn" data-color="#ff8800" style="background:#ff8800;" onclick="selectCHColor(this)" title="Orange"></div>
-      <div class="chColorBtn" data-color="#ffff00" style="background:#ffff00;" onclick="selectCHColor(this)" title="Yellow"></div>
-      <div class="chColorBtn" data-color="#00ffff" style="background:#00ffff;" onclick="selectCHColor(this)" title="Cyan"></div>
-      <div class="chColorBtn" data-color="#ff00ff" style="background:#ff00ff;" onclick="selectCHColor(this)" title="Pink"></div>
-      <div class="chColorBtn" data-color="#aa44ff" style="background:#aa44ff;" onclick="selectCHColor(this)" title="Purple"></div>
-      <div class="chColorBtn" data-color="#ff4488" style="background:#ff4488;" onclick="selectCHColor(this)" title="Hot Pink"></div>
-      <div class="chColorBtn" data-color="#44aaff" style="background:#44aaff;" onclick="selectCHColor(this)" title="Sky Blue"></div>
-      <div class="chColorBtn" data-color="#ffcc00" style="background:#ffcc00;" onclick="selectCHColor(this)" title="Gold"></div>
+      <div class="chColorBtn" data-color="#ffffff" style="background:#ffffff;" title="White"></div>
+      <div class="chColorBtn" data-color="#00ff88" style="background:#00ff88;" title="Mint Green"></div>
+      <div class="chColorBtn" data-color="#00ff00" style="background:#00ff00;" title="Green"></div>
+      <div class="chColorBtn" data-color="#ff3300" style="background:#ff3300;" title="Red"></div>
+      <div class="chColorBtn" data-color="#ff8800" style="background:#ff8800;" title="Orange"></div>
+      <div class="chColorBtn" data-color="#ffff00" style="background:#ffff00;" title="Yellow"></div>
+      <div class="chColorBtn" data-color="#00ffff" style="background:#00ffff;" title="Cyan"></div>
+      <div class="chColorBtn" data-color="#ff00ff" style="background:#ff00ff;" title="Pink"></div>
+      <div class="chColorBtn" data-color="#aa44ff" style="background:#aa44ff;" title="Purple"></div>
+      <div class="chColorBtn" data-color="#ff4488" style="background:#ff4488;" title="Hot Pink"></div>
+      <div class="chColorBtn" data-color="#44aaff" style="background:#44aaff;" title="Sky Blue"></div>
+      <div class="chColorBtn" data-color="#ffcc00" style="background:#ffcc00;" title="Gold"></div>
       <!-- Custom color picker -->
       <label title="Custom Color" style="position:relative;cursor:pointer;">
         <div style="width:28px;height:28px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);border:2px solid rgba(255,255,255,0.3);"></div>
-        <input type="color" id="sCHcolorPicker" style="position:absolute;opacity:0;width:0;height:0;" oninput="selectCHColorCustom(this.value)"/>
+        <input type="color" id="sCHcolorPicker" style="position:absolute;opacity:0;width:0;height:0;"/>
       </label>
     </div>
     <input type="hidden" id="sCHcolor" value="#ffffff"/>
@@ -351,36 +351,35 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <!-- Outline toggle -->
     <div class="sRow">
       <span class="sLabel">Outline (Black Border)</span>
-      <label class="sToggle"><input type="checkbox" id="sCHoutline" onchange="applySettings()"/><span class="tslide"></span></label>
+      <label class="sToggle"><input type="checkbox" id="sCHoutline"/><span class="tslide"></span></label>
     </div>
 
     <!-- Opacity -->
     <div class="sRow">
       <span class="sLabel">Opacity</span>
-      <input type="range" class="sSlider" id="sCHopacity" min="0.1" max="1" step="0.05" value="1" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHopacity" min="0.1" max="1" step="0.05" value="1"/>
       <span class="sVal" id="sCHopacityV">100%</span>
     </div>
 
     <div class="sRow">
       <span class="sLabel">Size</span>
-      <input type="range" class="sSlider" id="sCHsize" min="12" max="60" value="22" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHsize" min="12" max="60" value="22"/>
       <span class="sVal" id="sCHsizeV">22</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Thickness</span>
-      <input type="range" class="sSlider" id="sCHthick" min="0.5" max="6" value="1.4" step="0.1" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHthick" min="0.5" max="6" value="1.4" step="0.1"/>
       <span class="sVal" id="sCHthickV">1.4</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Gap</span>
-      <input type="range" class="sSlider" id="sCHgap" min="0" max="16" value="3" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sCHgap" min="0" max="16" value="3"/>
       <span class="sVal" id="sCHgapV">3</span>
     </div>
 
     <!-- Live Preview (big) -->
     <div class="sLabel" style="margin-bottom:8px;margin-top:4px;">Live Preview</div>
-    <div id="sCHpreview" style="width:100%;height:100px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:6px;display:flex;align-items:center;justify-content:center;position:relative;">
-      <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(10,30,10,0.8),rgba(5,15,5,0.8));border-radius:6px;"></div>
+    <div id="sCHpreview" style="width:100%;height:100px;background:linear-gradient(135deg,#0a1e0a,#050f05);border:1px solid rgba(255,255,255,0.08);border-radius:6px;display:flex;align-items:center;justify-content:center;">
     </div>
   </div>
 
@@ -389,12 +388,12 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <h4>FIELD OF VIEW</h4>
     <div class="sRow">
       <span class="sLabel">FOV</span>
-      <input type="range" class="sSlider" id="sFOV" min="55" max="110" value="75" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sFOV" min="55" max="110" value="75"/>
       <span class="sVal" id="sFOVv">75°</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Scope FOV (Sniper)</span>
-      <input type="range" class="sSlider" id="sScopeFOV" min="8" max="30" value="18" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sScopeFOV" min="8" max="30" value="18"/>
       <span class="sVal" id="sScopeFOVv">18°</span>
     </div>
   </div>
@@ -404,12 +403,12 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <h4>MOUSE & CONTROLS</h4>
     <div class="sRow">
       <span class="sLabel">Sensitivity</span>
-      <input type="range" class="sSlider" id="sSens" min="0.0005" max="0.005" step="0.0001" value="0.0018" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sSens" min="0.0005" max="0.005" step="0.0001" value="0.0018"/>
       <span class="sVal" id="sSensV">1.8</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Invert Y</span>
-      <label class="sToggle"><input type="checkbox" id="sInvertY" onchange="applySettings()"/><span class="tslide"></span></label>
+      <label class="sToggle"><input type="checkbox" id="sInvertY"/><span class="tslide"></span></label>
     </div>
   </div>
 
@@ -418,7 +417,7 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <h4>GRAPHICS</h4>
     <div class="sRow">
       <span class="sLabel">Shadow Quality</span>
-      <select class="sSelect" id="sShadow" onchange="applySettings()">
+      <select class="sSelect" id="sShadow">
         <option value="off">Off (Best FPS)</option>
         <option value="low">Low</option>
         <option value="high" selected>High</option>
@@ -426,7 +425,7 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     </div>
     <div class="sRow">
       <span class="sLabel">Render Scale</span>
-      <select class="sSelect" id="sRenderScale" onchange="applySettings()">
+      <select class="sSelect" id="sRenderScale">
         <option value="0.5">50% (Max FPS)</option>
         <option value="0.75">75%</option>
         <option value="1" selected>100%</option>
@@ -434,11 +433,11 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     </div>
     <div class="sRow">
       <span class="sLabel">Vignette</span>
-      <label class="sToggle"><input type="checkbox" id="sVignette" checked onchange="applySettings()"/><span class="tslide"></span></label>
+      <label class="sToggle"><input type="checkbox" id="sVignette" checked/><span class="tslide"></span></label>
     </div>
     <div class="sRow">
       <span class="sLabel">Blood Effects</span>
-      <label class="sToggle"><input type="checkbox" id="sBlood" checked onchange="applySettings()"/><span class="tslide"></span></label>
+      <label class="sToggle"><input type="checkbox" id="sBlood" checked/><span class="tslide"></span></label>
     </div>
   </div>
 
@@ -447,12 +446,12 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <h4>AUDIO</h4>
     <div class="sRow">
       <span class="sLabel">Master Volume</span>
-      <input type="range" class="sSlider" id="sVolume" min="0" max="1" step="0.05" value="0.8" oninput="applySettings()"/>
+      <input type="range" class="sSlider" id="sVolume" min="0" max="1" step="0.05" value="0.8"/>
       <span class="sVal" id="sVolumeV">80%</span>
     </div>
     <div class="sRow">
       <span class="sLabel">Music</span>
-      <label class="sToggle"><input type="checkbox" id="sMusic" checked onchange="applySettings()"/><span class="tslide"></span></label>
+      <label class="sToggle"><input type="checkbox" id="sMusic" checked/><span class="tslide"></span></label>
     </div>
   </div>
 
@@ -669,6 +668,7 @@ var SETTINGS = {
 
 function openSettingsPanel(){
   document.getElementById('settingsPanel').style.display='flex';
+  setTimeout(buildCrosshair, 50);
 }
 function closeSettingsPanel(){
   document.getElementById('settingsPanel').style.display='none';
@@ -860,12 +860,11 @@ function buildCrosshair(){
   el.innerHTML=svgStr;
   el.style.transform='translate(-50%,-50%)';
 
-  // Big preview with dark background
+  // Live preview
   var prev=document.getElementById('sCHpreview');
   if(prev){
-    var ps=Math.min(s*2,80);
-    prev.innerHTML='<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;">'
-      +'<svg width="'+ps+'" height="'+ps+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg></div>';
+    var ps=Math.max(s, 60);
+    prev.innerHTML='<svg width="'+ps+'" height="'+ps+'" viewBox="0 0 '+s+' '+s+'" style="opacity:'+opacity+'">'+svg+'</svg>';
   }
   // sync style buttons
   document.querySelectorAll('.chStyleBtn').forEach(function(b){
@@ -898,8 +897,7 @@ function loadSettings(){
     applySettings();
   }catch(e){}
 }
-// Load on start
-setTimeout(loadSettings, 100);
+// Load handled by window.load event above
 
 // Hook sensitivity into mouse look
 var _origMouseMove;
@@ -1097,6 +1095,7 @@ var SETTINGS = {
 
 function openSettingsPanel(){
   document.getElementById('settingsPanel').style.display='flex';
+  setTimeout(buildCrosshair, 50);
 }
 function closeSettingsPanel(){
   document.getElementById('settingsPanel').style.display='none';
@@ -1219,8 +1218,7 @@ function loadSettings(){
     applySettings();
   }catch(e){}
 }
-// Load on start
-setTimeout(loadSettings, 100);
+// Load handled by window.load event above
 
 // Hook sensitivity into mouse look
 var _origMouseMove;
@@ -3065,6 +3063,47 @@ if(document.readyState==='complete'){
 } else {
   window.addEventListener('load', setupMobile);
 }
+
+
+// ── WIRE CROSSHAIR BUTTONS (deferred, after DOM ready) ────
+window.addEventListener('load', function(){
+  // Style buttons
+  document.querySelectorAll('.chStyleBtn').forEach(function(btn){
+    btn.addEventListener('click', function(){ selectCHStyle(btn); });
+  });
+
+  // Color buttons
+  document.querySelectorAll('.chColorBtn').forEach(function(btn){
+    btn.addEventListener('click', function(){ selectCHColor(btn); });
+  });
+
+  // Custom color picker
+  var cp = document.getElementById('sCHcolorPicker');
+  if(cp) cp.addEventListener('input', function(){ selectCHColorCustom(this.value); });
+
+  // All sliders and toggles in settings
+  var sliders = ['sCHsize','sCHthick','sCHgap','sCHopacity','sFOV','sScopeFOV','sSens','sVolume','sRenderScale'];
+  sliders.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('input', function(){ applySettings(); });
+  });
+
+  var selects = ['sCHstyle','sCHcolor','sShadow'];
+  selects.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('change', function(){ applySettings(); });
+  });
+
+  var checks = ['sCHoutline','sCHstyle','sInvertY','sVignette','sBlood','sMusic'];
+  checks.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('change', function(){ applySettings(); });
+  });
+
+  // Load saved settings
+  loadSettings();
+  buildCrosshair();
+});
 
 </script>
 </body>
