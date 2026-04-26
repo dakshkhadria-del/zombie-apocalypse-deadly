@@ -2363,211 +2363,195 @@ loop();
 })();
 
 
-// ── MOBILE CONTROLS ────────────────────────────────────
-var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 900;
 
-function initMobileControls() {
-  if (!isMobile) return;
-  document.getElementById('mobileControls').style.display = 'block';
-  // Hide keyboard hint
-  var hint = document.querySelector('[style*="WASD"]');
 
-  // ── JOYSTICK ──────────────────────────────────────────
-  var jZone  = document.getElementById('joystickZone');
-  var jKnob  = document.getElementById('joystickKnob');
-  var jActive = false;
-  var jStart  = {x:0,y:0};
-  var jDelta  = {x:0,y:0};
-  var JR = 52; // max radius
+// ══════════════════════════════════════════════════════
+// MOBILE CONTROLS — Clean rewrite
+// ══════════════════════════════════════════════════════
+var isMobile = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.innerWidth < 900;
 
-  jZone.addEventListener('touchstart', function(e){
+// ── Show/hide mobile controls based on game state ─────
+function showMobileControls(show){
+  var mc = document.getElementById('mobileControls');
+  if(mc) mc.style.display = show ? 'block' : 'none';
+}
+
+// ── JOYSTICK STATE ─────────────────────────────────────
+var joy = {active:false, dx:0, dy:0, startX:0, startY:0};
+var JR = 50; // max joystick radius
+
+function setupMobile(){
+  if(!isMobile) return;
+  document.getElementById('mobileControls').style.display = 'none';
+
+  // ── JOYSTICK ────────────────────────────────────────
+  var jZone = document.getElementById('joystickZone');
+  var jKnob = document.getElementById('joystickKnob');
+
+  jZone.addEventListener('touchstart',function(e){
     e.preventDefault();
-    jActive = true;
-    var t = e.touches[0];
+    joy.active = true;
     var r = jZone.getBoundingClientRect();
-    jStart.x = r.left + r.width/2;
-    jStart.y = r.top  + r.height/2;
-    updateJoystick(t.clientX, t.clientY);
+    joy.startX = r.left + r.width/2;
+    joy.startY = r.top  + r.height/2;
+    moveJoy(e.touches[0]);
   },{passive:false});
 
-  jZone.addEventListener('touchmove', function(e){
+  jZone.addEventListener('touchmove',function(e){
     e.preventDefault();
-    if(!jActive) return;
-    updateJoystick(e.touches[0].clientX, e.touches[0].clientY);
+    if(joy.active) moveJoy(e.touches[0]);
   },{passive:false});
 
-  jZone.addEventListener('touchend', function(e){
+  jZone.addEventListener('touchend',function(e){
     e.preventDefault();
-    jActive = false;
-    jDelta = {x:0,y:0};
-    jKnob.style.transform = 'translate(-50%,-50%)';
+    joy.active=false; joy.dx=0; joy.dy=0;
+    jKnob.style.transform='translate(-50%,-50%)';
+    G.keys['KeyW']=false; G.keys['KeyS']=false;
+    G.keys['KeyA']=false; G.keys['KeyD']=false;
   },{passive:false});
 
-  function updateJoystick(cx, cy){
-    var dx = cx - jStart.x;
-    var dy = cy - jStart.y;
-    var dist = Math.sqrt(dx*dx + dy*dy);
-    if(dist > JR){ dx = dx/dist*JR; dy = dy/dist*JR; }
-    jDelta.x = dx/JR;
-    jDelta.y = dy/JR;
-    jKnob.style.transform = 'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+  function moveJoy(t){
+    var dx = t.clientX - joy.startX;
+    var dy = t.clientY - joy.startY;
+    var d  = Math.sqrt(dx*dx+dy*dy);
+    if(d>JR){dx=dx/d*JR;dy=dy/d*JR;}
+    joy.dx=dx/JR; joy.dy=dy/JR;
+    jKnob.style.transform='translate(calc(-50% + '+dx+'px),calc(-50% + '+dy+'px))';
+    // Feed into G.keys
+    G.keys['KeyW'] = joy.dy < -0.25;
+    G.keys['KeyS'] = joy.dy >  0.25;
+    G.keys['KeyA'] = joy.dx < -0.25;
+    G.keys['KeyD'] = joy.dx >  0.25;
   }
 
-  // Inject joystick into game loop
-  var _origGetKeys = null;
-  var joyInterval = setInterval(function(){
-    if(!G || !G.on) return;
-    // Override keys with joystick delta
-    G.keys['KeyW'] = jDelta.y < -0.2;
-    G.keys['KeyS'] = jDelta.y >  0.2;
-    G.keys['KeyA'] = jDelta.x < -0.2;
-    G.keys['KeyD'] = jDelta.x >  0.2;
-  }, 16);
-
-  // ── LOOK ZONE (gyro-style touch drag) ─────────────────
+  // ── LOOK ZONE (right 55% of screen = look) ──────────
   var lZone = document.getElementById('lookZone');
   var lLast = null;
-  var LOOK_SENS = 0.005;
+  var SENS  = 0.006;
 
-  lZone.addEventListener('touchstart', function(e){
+  lZone.addEventListener('touchstart',function(e){
     e.preventDefault();
-    lLast = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+    lLast={x:e.touches[0].clientX, y:e.touches[0].clientY};
   },{passive:false});
 
-  lZone.addEventListener('touchmove', function(e){
+  lZone.addEventListener('touchmove',function(e){
     e.preventDefault();
-    if(!lLast || !G.on) return;
-    var t = e.touches[0];
-    var dx = t.clientX - lLast.x;
-    var dy = t.clientY - lLast.y;
-    yaw   -= dx * LOOK_SENS;
-    pitch -= dy * LOOK_SENS;
-    pitch = Math.max(-Math.PI*0.28, Math.min(Math.PI*0.2, pitch));
-    lLast = {x: t.clientX, y: t.clientY};
+    if(!lLast||!G.on)return;
+    var dx=e.touches[0].clientX-lLast.x;
+    var dy=e.touches[0].clientY-lLast.y;
+    yaw  -=dx*SENS;
+    pitch-=dy*SENS;
+    pitch=Math.max(-Math.PI*0.28,Math.min(Math.PI*0.2,pitch));
+    lLast={x:e.touches[0].clientX,y:e.touches[0].clientY};
   },{passive:false});
 
-  lZone.addEventListener('touchend', function(e){
-    e.preventDefault();
-    lLast = null;
+  lZone.addEventListener('touchend',function(e){
+    e.preventDefault(); lLast=null;
   },{passive:false});
 
-  // ── SHOOT BUTTON ──────────────────────────────────────
-  document.getElementById('btnShoot').addEventListener('touchstart', function(e){
+  // ── SHOOT (hold = auto fire) ─────────────────────────
+  var shootTimer=null;
+  var btnS=document.getElementById('btnShoot');
+  btnS.addEventListener('touchstart',function(e){
     e.preventDefault();
-    if(G.on) doAtk();
+    if(!G.on)return;
+    doAtk();
+    shootTimer=setInterval(function(){if(G.on)doAtk();},150);
+  },{passive:false});
+  btnS.addEventListener('touchend',function(e){
+    e.preventDefault();
+    clearInterval(shootTimer);
   },{passive:false});
 
-  // Auto-fire while holding shoot
-  var shootHold = null;
-  document.getElementById('btnShoot').addEventListener('touchstart', function(e){
+  // ── JUMP ────────────────────────────────────────────
+  document.getElementById('btnJump').addEventListener('touchstart',function(e){
     e.preventDefault();
-    if(G.on){ doAtk(); shootHold = setInterval(function(){ if(G.on) doAtk(); }, 120); }
-  },{passive:false});
-  document.getElementById('btnShoot').addEventListener('touchend', function(e){
-    e.preventDefault();
-    clearInterval(shootHold);
+    if(G.on&&isGrounded){velY=JUMP_FORCE;isGrounded=false;}
   },{passive:false});
 
-  // ── JUMP BUTTON ───────────────────────────────────────
-  document.getElementById('btnJump').addEventListener('touchstart', function(e){
-    e.preventDefault();
-    if(G.on && isGrounded){ velY=JUMP_FORCE; isGrounded=false; }
-  },{passive:false});
-
-  // ── RELOAD BUTTON ─────────────────────────────────────
-  document.getElementById('btnReload').addEventListener('touchstart', function(e){
+  // ── RELOAD ──────────────────────────────────────────
+  document.getElementById('btnReload').addEventListener('touchstart',function(e){
     e.preventDefault();
     if(G.on) doRld();
   },{passive:false});
 
-  // ── SCOPE BUTTON ──────────────────────────────────────
-  document.getElementById('btnScope').addEventListener('touchstart', function(e){
+  // ── SCOPE ───────────────────────────────────────────
+  document.getElementById('btnScope').addEventListener('touchstart',function(e){
     e.preventDefault();
-    if(!G.on) return;
+    if(!G.on)return;
     if(cwi===0||cwi===1||cwi===3){
       scopeOn=!scopeOn;
-      if(scopeOn){drawScope(cwi===0?'ak':'sniper');document.getElementById('scope').style.display='block';cam.fov=(cwi===0)?45:(SETTINGS.scopeFov||18);}
-      else{document.getElementById('scope').style.display='none';cam.fov=SETTINGS.fov||75;}
+      if(scopeOn){
+        drawScope(cwi===0?'ak':'sniper');
+        document.getElementById('scope').style.display='block';
+        cam.fov=(cwi===0)?45:(SETTINGS.scopeFov||18);
+      } else {
+        document.getElementById('scope').style.display='none';
+        cam.fov=SETTINGS.fov||75;
+      }
       cam.updateProjectionMatrix();
     }
   },{passive:false});
 
-  // ── KNIFE / MELEE BUTTON ──────────────────────────────
-  document.getElementById('btnKnife').addEventListener('touchstart', function(e){
+  // ── KNIFE ───────────────────────────────────────────
+  document.getElementById('btnKnife').addEventListener('touchstart',function(e){
     e.preventDefault();
-    if(G.on){ switchW(2); doAtk(); }
+    if(!G.on)return;
+    switchW(2); doAtk();
   },{passive:false});
 
-  // ── WEAPON SWITCHER ───────────────────────────────────
+  // ── WEAPON SWITCHER ─────────────────────────────────
   document.querySelectorAll('.wBtn').forEach(function(btn){
-    btn.addEventListener('touchstart', function(e){
+    btn.addEventListener('touchstart',function(e){
       e.preventDefault();
-      var w = parseInt(btn.getAttribute('data-w'));
-      switchW(w);
-      document.querySelectorAll('.wBtn').forEach(function(b){ b.classList.remove('active'); });
+      switchW(parseInt(btn.getAttribute('data-w')));
+      document.querySelectorAll('.wBtn').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
     },{passive:false});
   });
 
-  // Update weapon switcher when weapon changes
-  var _origSwitchW = switchW;
-  switchW = function(i){
-    _origSwitchW(i);
-    document.querySelectorAll('.wBtn').forEach(function(b){
-      b.classList.toggle('active', parseInt(b.getAttribute('data-w'))===i);
-    });
-  };
+  // ── BLOCK SCROLL/ZOOM on canvas ─────────────────────
+  ['touchstart','touchmove','touchend'].forEach(function(ev){
+    document.getElementById('gc').addEventListener(ev,function(e){e.preventDefault();},{passive:false});
+  });
 
-  // ── PREVENT DEFAULT TOUCH on game canvas ──────────────
-  document.getElementById('gc').addEventListener('touchstart',function(e){e.preventDefault();},{passive:false});
-  document.getElementById('gc').addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
-
-  // ── START GAME ON MOBILE (no pointer lock needed) ─────
-  // Override startGame to skip pointer lock on mobile
-  var _origStart = startGame;
+  // ── PATCH startGame for mobile (no pointer lock) ─────
+  var _sg = startGame;
   startGame = function(){
-    _origStart();
-    // Mobile doesn't use pointer lock
-    if(isMobile && document.pointerLockElement){
-      document.exitPointerLock();
-    }
-    document.body.style.cursor = 'none';
+    _sg();
+    // On mobile: exit pointer lock if granted, use touch instead
+    setTimeout(function(){
+      if(document.pointerLockElement) document.exitPointerLock();
+      showMobileControls(true);
+    }, 300);
   };
 
-  // Override mousemove — not needed on mobile (we use lookZone)
-  // But keep it for if someone uses a mouse on tablet
+  // ── PATCH endGame — hide mobile controls ─────────────
+  var _eg = endGame;
+  endGame = function(){
+    _eg();
+    showMobileControls(false);
+  };
 
-  console.log('Mobile controls initialized');
+  // ── PATCH cam rotation — mobile uses yaw/pitch directly
+  // (already done in look zone above)
+
+  console.log('[Mobile] Controls ready');
 }
 
-// Auto-show play button on mobile for start screen
+// Run setup
 if(isMobile){
-  // Make start screen touch-friendly
-  document.addEventListener('DOMContentLoaded', function(){
-    var ss = document.getElementById('ss');
-    if(ss) ss.style.cursor = 'pointer';
-  });
+  // Prevent pinch zoom
+  document.addEventListener('gesturestart',function(e){e.preventDefault();},{passive:false});
+  document.addEventListener('gesturechange',function(e){e.preventDefault();},{passive:false});
 }
 
-// Init when DOM ready
-window.addEventListener('load', function(){
-  initMobileControls();
-  // Resize handler for mobile
-  window.addEventListener('resize', function(){
-    isMobile = window.innerWidth < 900;
-    var mc = document.getElementById('mobileControls');
-    if(mc) mc.style.display = (isMobile && G && G.on) ? 'block' : (isMobile ? 'block' : 'none');
-  });
-  // Show/hide controls based on game state
-  var _checkState = setInterval(function(){
-    var mc = document.getElementById('mobileControls');
-    if(!mc) return;
-    if(isMobile){
-      var authVisible = document.getElementById('authScreen').style.display !== 'none';
-      mc.style.display = (authVisible || !G || !G.on) ? 'none' : 'block';
-    }
-  }, 500);
-});
+// Wait for page load then init
+if(document.readyState==='complete'){
+  setupMobile();
+} else {
+  window.addEventListener('load', setupMobile);
+}
 
 </script>
 </body>
