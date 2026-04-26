@@ -231,8 +231,6 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 <!-- COIN DISPLAY (during game) -->
 <div id="coinDisplay">🪙 <span id="coinCount">0</span></div>
 
-<!-- SHOP BUTTON (home screen) -->
-<button id="shopBtn" onclick="openShop()">🛒 &nbsp;WEAPON SHOP</button>
 
 <!-- SHOP PANEL -->
 <div id="shopPanel">
@@ -510,6 +508,7 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
   <div style="font-size:12px;letter-spacing:6px;color:#ff4400;margin-bottom:32px;font-weight:600;">DEADLY EDITION</div>
   <div style="color:rgba(255,255,255,.3);font-size:10px;letter-spacing:1px;text-align:center;line-height:2.7;">WASD MOVE · SPACE JUMP · MOUSE LOOK · CLICK ATTACK · R RELOAD<br>[1] AK-47 (E=SCOPE) · [2] CROSSBOW (E=SCOPE) · [3] KNIFE (APPROACH ZOMBIE + CLICK TO STAB · BACKSTAB = INSTANT KILL)</div>
   <button class="bb" id="bst">▶ &nbsp;PLAY</button>
+  <button id="shopBtn" style="margin-top:10px;padding:10px 28px;background:linear-gradient(135deg,#ffcc00,#ff8800);color:#000;border:none;border-radius:6px;font-size:12px;font-weight:900;letter-spacing:3px;cursor:pointer;font-family:'Segoe UI',sans-serif;display:none;" onclick="openShop()">🛒 &nbsp;WEAPON SHOP</button>
   <button id="settingsBtn" onclick="openSettingsPanel()">⚙ SETTINGS</button>
 </div>
 <div id="ds">
@@ -946,142 +945,6 @@ function applyBrightness(){
 }
 
 
-// ── WEAPON SHOP SYSTEM ─────────────────────────────────
-var SHOP_WEAPONS = [
-  { id:0, name:'AK-47',    icon:'🔫', price:0,   desc:'30 rounds\nFast fire rate\nHeadshot: 25-40 dmg',   key:'[1]' },
-  { id:1, name:'CROSSBOW', icon:'🏹', price:50,  desc:'6 bolts\nHigh damage\nHeadshot: 80-120 dmg',      key:'[2]' },
-  { id:2, name:'KNIFE',    icon:'🔪', price:70,  desc:'Unlimited\nMelee only\nBackstab = instant kill!',  key:'[3]' },
-  { id:3, name:'SNIPER',   icon:'🎯', price:100, desc:'5 rounds\nHeadshot = INSTANT KILL\nBody: 120-200', key:'[4]' },
-];
-
-// Which weapons player owns (persisted per account)
-var ownedWeapons = [0]; // everyone starts with AK-47
-
-function getShopKey(){
-  return 'dza_shop_' + (currentUser ? currentUser.toLowerCase() : 'guest');
-}
-function loadShopData(){
-  try{
-    var d = JSON.parse(localStorage.getItem(getShopKey()) || '{}');
-    ownedWeapons = d.owned || [0];
-    G.coins = d.coins || 0;
-    // Owner gets all weapons for free
-    if(isOwner()) ownedWeapons = [0,1,2,3];
-  }catch(e){ ownedWeapons=[0]; G.coins=0; }
-  updateCoinDisplay();
-  updateWeaponSlots();
-}
-function saveShopData(){
-  try{
-    localStorage.setItem(getShopKey(), JSON.stringify({
-      owned: ownedWeapons,
-      coins: G.coins || 0
-    }));
-  }catch(e){}
-}
-
-function openShop(){
-  loadShopData();
-  renderShop();
-  document.getElementById('shopPanel').style.display='flex';
-}
-function closeShop(){
-  document.getElementById('shopPanel').style.display='none';
-  updateWeaponSlots();
-}
-
-function renderShop(){
-  var grid = document.getElementById('shopGrid');
-  var coins = G.coins || 0;
-  document.getElementById('shopCoinVal').textContent = coins;
-  grid.innerHTML = '';
-  SHOP_WEAPONS.forEach(function(w){
-    var owned = ownedWeapons.indexOf(w.id) !== -1;
-    var canAfford = coins >= w.price;
-    var card = document.createElement('div');
-    card.className = 'shopCard ' + (owned ? 'owned' : 'locked');
-    var btnClass = owned ? 'owned' : (canAfford ? 'buy' : 'cantafford');
-    var btnText = owned ? '✓ OWNED' : (canAfford ? '🪙 BUY — '+w.price : '🪙 NEED '+w.price);
-    card.innerHTML =
-      (owned ? '<div class="shopOwnedBadge">OWNED</div>' : '') +
-      '<div class="shopIcon">'+w.icon+'</div>' +
-      '<div class="shopName">'+w.name+' '+w.key+'</div>' +
-      '<div class="shopDesc">'+w.desc.replace(/\n/g,'<br>')+'</div>' +
-      '<div class="shopPrice">'+(w.price===0?'FREE':'🪙 '+w.price+' COINS')+'</div>' +
-      '<button class="shopBuyBtn '+btnClass+'" '+(owned||!canAfford?'disabled':'')+' onclick="buyWeapon('+w.id+')">'+btnText+'</button>';
-    grid.appendChild(card);
-  });
-}
-
-function buyWeapon(id){
-  if(ownedWeapons.indexOf(id) !== -1) return;
-  var w = SHOP_WEAPONS[id];
-  if((G.coins||0) < w.price){ showWM('NOT ENOUGH COINS!'); return; }
-  G.coins -= w.price;
-  ownedWeapons.push(id);
-  saveShopData();
-  renderShop();
-  updateCoinDisplay();
-  updateWeaponSlots();
-  showWM('✅ '+w.name+' UNLOCKED!');
-}
-
-function updateCoinDisplay(){
-  var cd = document.getElementById('coinDisplay');
-  var cc = document.getElementById('coinCount');
-  if(cc) cc.textContent = G.coins || 0;
-  if(cd) cd.style.display = G.on ? 'block' : 'none';
-}
-
-function updateWeaponSlots(){
-  // Grey out locked weapons in HUD
-  [0,1,2,3].forEach(function(i){
-    var el = document.getElementById('ws'+i);
-    if(!el) return;
-    var owned = ownedWeapons.indexOf(i) !== -1;
-    if(!owned){
-      el.style.opacity = '0.3';
-      el.style.textDecoration = 'line-through';
-      el.title = 'Buy in shop!';
-    } else {
-      el.style.opacity = '1';
-      el.style.textDecoration = 'none';
-      el.title = '';
-    }
-  });
-}
-
-// Override switchW to block locked weapons
-var _origSwitchW = switchW;
-switchW = function(i){
-  if(ownedWeapons.indexOf(i) === -1){
-    showWM('🔒 BUY IN SHOP FIRST! ('+SHOP_WEAPONS[i].price+' coins)');
-    return;
-  }
-  _origSwitchW(i);
-};
-
-// Add coins when killing zombies (hook into G.score updates)
-var _lastScore = 0;
-function awardCoins(){
-  if(!G.on) return;
-  var diff = (G.score||0) - _lastScore;
-  if(diff > 0){
-    // 1 coin per 10 score
-    var earned = Math.floor(diff / 10);
-    if(earned > 0){
-      G.coins = (G.coins||0) + earned;
-      updateCoinDisplay();
-    }
-  }
-  _lastScore = G.score||0;
-}
-
-// Show shop button on home screen
-function showShopBtn(){
-  var btn = document.getElementById('shopBtn');
-  if(btn) btn.style.display = currentUser ? 'block' : 'none';
-}
 
 // ── AUTH SYSTEM (works on ALL devices via Account Code) ──
 // Accounts stored in localStorage on each device.
@@ -1573,6 +1436,9 @@ function awardCoins(){
 function showShopBtn(){
   var btn = document.getElementById('shopBtn');
   if(btn) btn.style.display = currentUser ? 'block' : 'none';
+  // Also show coin display if in game
+  var cd=document.getElementById('coinDisplay');
+  if(cd) cd.style.display = (G&&G.on) ? 'block' : 'none';
 }
 
 // ── AUTH SYSTEM ────────────────────────────────────────
@@ -3195,6 +3061,9 @@ function endGame(){
 document.getElementById('bst').onclick=startGame;
 document.getElementById('brt').onclick=startGame;
 loop();
+
+// Wire shop btn
+var shopBtnEl=document.getElementById('shopBtn');if(shopBtnEl)shopBtnEl.onclick=openShop;
 
 // ── WIRE ADMIN BUTTONS ─────────────────────────────────
 (function(){
