@@ -2198,125 +2198,117 @@ akM.position.set(0.22,-0.22,-0.47);cbM.position.set(0.16,-0.2,-0.45);knM.positio
 // ── ZOMBIE ──────────────────────────────────────────────
 function mkZombie(type){
   var g=new THREE.Group();
+  var t2=Math.min(type,2);
 
-  // MUCH BRIGHTER skin so visible in dark forest
-  // Type 0: grey-green rotting  Type 1: pale sickly  Type 2: bloody boss
-  var SK=[
-    [0xb8a888,0xa09070,0x887850,0x706040,0x584830], // grey-tan rotting
-    [0x8ab080,0x78a068,0x669050,0x547838,0x426028], // sickly green-grey
-    [0xc86858,0xb05040,0x983828,0x802818,0x681808]  // bloody red boss
-  ][Math.min(type,2)];
-  // Clothing: dark but visible brown suit
-  var CL=[
-    [0x4a3c2c,0x382c1e,0x281e12,0x18120a], // dirty brown
-    [0x2a3c20,0x1e2c16,0x141e0e,0x0c1208], // dark green-brown
-    [0x3c1c1c,0x2c1010,0x1c0808,0x100404]  // dark red-brown
-  ][Math.min(type,2)];
-  var s=SK,cl=CL;
-  var sc=type===2?1.32:1.0;
+  // Skin colors - visible rotting flesh
+  var skinCol=[0xb8a070,0x90b878,0xc06050][t2];
+  var skinDark=[0x907850,0x709060,0xa04040][t2];
+  var clothCol=[0x3a2e1e,0x1e2e18,0x2e1414][t2];
+  var clothDark=[0x261e10,0x14200e,0x1e0c0c][t2];
+  var boneCol=0xddd0a0;
 
   function zm(c){return new THREE.MeshLambertMaterial({color:c});}
-  function box(w,h,d,c,px,py,pz,rx,rz){
+  function bx(w,h,d,c,px,py,pz){
     var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),zm(c));
-    m.position.set(px||0,py||0,pz||0);
-    if(rx)m.rotation.x=rx;if(rz)m.rotation.z=rz;
-    m.castShadow=true;g.add(m);return m;
+    m.position.set(px,py,pz);m.castShadow=true;g.add(m);return m;
   }
 
-  // ── TORSO ──────────────────────────────────────────────
-  box(0.44*sc,0.58*sc,0.28*sc,cl[0],0,0.76,0);      // inner body
-  box(0.48*sc,0.56*sc,0.30*sc,cl[1],0,0.76,0.01);   // dirty jacket
-  // Jacket details
-  box(0.10,0.30,0.31,cl[2],-0.12,0.82,0);            // lapel L
-  box(0.10,0.30,0.31,cl[2], 0.12,0.82,0);            // lapel R
-  box(0.06,0.22,0.31,cl[3],-0.19,0.54,0,0,0.18);    // torn strip L
-  box(0.05,0.20,0.31,cl[3], 0.10,0.56,0,0,-0.14);   // torn strip M
-  box(0.06,0.18,0.31,cl[3], 0.21,0.57,0,0,0.22);    // torn strip R
-  // Exposed ribs (bright bone color - very visible)
-  for(var ri=0;ri<5;ri++) box(0.38*sc,0.038,0.062,0xd4c898,0,0.58+ri*0.092,-0.155);
-  box(0.040,0.34,0.040,0xc8bc88,0,0.60,-0.155);      // sternum
-  // Skin through holes
-  box(0.11,0.16,0.30,s[2],-0.14,0.72,0);
-  box(0.11,0.16,0.30,s[2], 0.14,0.72,0);
-  // Gut wound / dark hole
-  if(type>0) box(0.14,0.12,0.30,0x3a1010,0,0.62,0.01);
+  var sc=t2===2?1.3:1.0;
 
-  // HIPS
-  box(0.46*sc,0.22*sc,0.29*sc,cl[0],0,0.40,0);
-  box(0.50*sc,0.22*sc,0.31*sc,cl[1],0,0.40,0.01);
-  box(0.06,0.18,0.31,cl[3],-0.20,0.28,0,0,0.12);
-  box(0.05,0.20,0.31,cl[3], 0.19,0.30,0,0,-0.16);
+  // ── BODY ──
+  // Torso - jacket
+  bx(0.50*sc, 0.64*sc, 0.32*sc, clothCol,   0, 0.82, 0);
+  bx(0.44*sc, 0.60*sc, 0.28*sc, clothDark,  0, 0.82, 0.01);
+  // Shirt under jacket (visible through tears)
+  bx(0.20*sc, 0.40*sc, 0.30*sc, 0x5a4a30,   0, 0.78, 0.01);
+  // Exposed ribs
+  bx(0.38*sc, 0.04, 0.06, boneCol, 0, 0.72,-0.16);
+  bx(0.38*sc, 0.04, 0.06, boneCol, 0, 0.82,-0.16);
+  bx(0.38*sc, 0.04, 0.06, boneCol, 0, 0.92,-0.16);
+  bx(0.38*sc, 0.04, 0.06, boneCol, 0, 1.02,-0.16);
+  bx(0.04, 0.40*sc, 0.04, boneCol, 0, 0.82,-0.16);// sternum
+  // Torn fabric strips hanging
+  bx(0.06, 0.22, 0.33, clothDark, -0.20, 0.62, 0);
+  bx(0.05, 0.20, 0.33, clothDark,  0.18, 0.64, 0);
+  bx(0.07, 0.18, 0.33, clothDark,  0.00, 0.60, 0);
+  // Jacket collar/lapels
+  bx(0.10, 0.28, 0.33, clothDark, -0.14, 0.92, 0);
+  bx(0.10, 0.28, 0.33, clothDark,  0.14, 0.92, 0);
+  // Skin patches on torso
+  bx(0.12, 0.18, 0.30, skinDark, -0.15, 0.78, 0);
+  bx(0.12, 0.18, 0.30, skinDark,  0.15, 0.78, 0);
 
-  // ── LEGS ──────────────────────────────────────────────
-  var lTG=new THREE.Group();lTG.position.set(-0.13,0.30,0);g.add(lTG);
-  var ltb=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.42,0.21),zm(cl[1]));ltb.position.y=-0.21;ltb.castShadow=true;lTG.add(ltb);
-  var ltb2=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.40,0.19),zm(s[0]));ltb2.position.y=-0.20;lTG.add(ltb2);
-  var lts=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.20,0.22),zm(cl[2]));lts.position.set(0.06,-0.32,0);lts.rotation.z=0.12;lTG.add(lts);
+  // Hips/trousers
+  bx(0.48*sc, 0.24*sc, 0.30*sc, clothCol,  0, 0.46, 0);
+  bx(0.42*sc, 0.20*sc, 0.26*sc, clothDark, 0, 0.46, 0.01);
+  bx(0.06, 0.16, 0.31, clothDark, -0.22, 0.36, 0);
+  bx(0.06, 0.16, 0.31, clothDark,  0.20, 0.36, 0);
 
-  var lSG=new THREE.Group();lSG.position.set(-0.13,0.0,0);g.add(lSG);
-  var lsb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.40,0.19),zm(cl[1]));lsb.position.y=-0.20;lsb.castShadow=true;lSG.add(lsb);
-  var lsb2=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.17),zm(s[1]));lsb2.position.y=-0.19;lSG.add(lsb2);
-  // BARE FOOT (visible skin color)
-  box(0.16,0.068,0.28,s[0],-0.13,-0.09,0.04);
-  box(0.14,0.052,0.09,s[1],-0.13,-0.092,0.18);
+  // ── LEGS (as groups for walk animation) ──
+  var lTG=new THREE.Group();lTG.position.set(-0.14,0.34,0);g.add(lTG);
+  var m=new THREE.Mesh(new THREE.BoxGeometry(0.19,0.44,0.22),zm(clothCol));m.position.y=-0.22;m.castShadow=true;lTG.add(m);
+  var m2=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.40,0.20),zm(skinCol));m2.position.y=-0.20;lTG.add(m2);
+  // torn trouser strip
+  var ms=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.18,0.23),zm(clothDark));ms.position.set(0.07,-0.34,0);ms.rotation.z=0.12;lTG.add(ms);
 
-  var rTG=new THREE.Group();rTG.position.set( 0.13,0.30,0);g.add(rTG);
-  var rtb=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.42,0.21),zm(cl[1]));rtb.position.y=-0.21;rtb.castShadow=true;rTG.add(rtb);
-  var rtb2=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.40,0.19),zm(s[0]));rtb2.position.y=-0.20;rTG.add(rtb2);
-  var rts=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.20,0.22),zm(cl[2]));rts.position.set(-0.06,-0.32,0);rts.rotation.z=-0.12;rTG.add(rts);
+  var lSG=new THREE.Group();lSG.position.set(-0.14,0.0,0);g.add(lSG);
+  var m3=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.40,0.20),zm(clothCol));m3.position.y=-0.20;m3.castShadow=true;lSG.add(m3);
+  var m4=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.38,0.18),zm(skinCol));m4.position.y=-0.19;lSG.add(m4);
+  // Bare foot
+  bx(0.17,0.07,0.30,skinCol, -0.14,-0.10,0.05);
+  bx(0.15,0.05,0.09,skinDark,-0.14,-0.10,0.20);// toes
 
-  var rSG=new THREE.Group();rSG.position.set( 0.13,0.0,0);g.add(rSG);
-  var rsb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.40,0.19),zm(cl[1]));rsb.position.y=-0.20;rsb.castShadow=true;rSG.add(rsb);
-  var rsb2=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.17),zm(s[1]));rsb2.position.y=-0.19;rSG.add(rsb2);
-  box(0.16,0.068,0.28,s[0], 0.13,-0.09,0.04);
-  box(0.14,0.052,0.09,s[1], 0.13,-0.092,0.18);
+  var rTG=new THREE.Group();rTG.position.set( 0.14,0.34,0);g.add(rTG);
+  var m5=new THREE.Mesh(new THREE.BoxGeometry(0.19,0.44,0.22),zm(clothCol));m5.position.y=-0.22;m5.castShadow=true;rTG.add(m5);
+  var m6=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.40,0.20),zm(skinCol));m6.position.y=-0.20;rTG.add(m6);
+  var ms2=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.18,0.23),zm(clothDark));ms2.position.set(-0.07,-0.34,0);ms2.rotation.z=-0.12;rTG.add(ms2);
 
-  // ── ARMS (long, dangling low) ─────────────────────────
-  var lAG=new THREE.Group();lAG.position.set(-0.28,0.80,0.02);
-  lAG.rotation.z=0.32;lAG.rotation.x=0.16;g.add(lAG);
-  var luA=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.42,0.15),zm(cl[1]));luA.position.y=-0.21;luA.castShadow=true;lAG.add(luA);
-  var luA2=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.40,0.13),zm(s[0]));luA2.position.y=-0.20;lAG.add(luA2);
-  var lss=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.16),zm(cl[2]));lss.position.set(0.06,-0.32,0);lss.rotation.z=0.15;lAG.add(lss);
+  var rSG=new THREE.Group();rSG.position.set( 0.14,0.0,0);g.add(rSG);
+  var m7=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.40,0.20),zm(clothCol));m7.position.y=-0.20;m7.castShadow=true;rSG.add(m7);
+  var m8=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.38,0.18),zm(skinCol));m8.position.y=-0.19;rSG.add(m8);
+  bx(0.17,0.07,0.30,skinCol,  0.14,-0.10,0.05);
+  bx(0.15,0.05,0.09,skinDark, 0.14,-0.10,0.20);
 
-  var lFG=new THREE.Group();lFG.position.set(-0.40,0.38,0.05);
-  lFG.rotation.z=0.22;lFG.rotation.x=0.30;g.add(lFG);
-  var lfA=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.38,0.13),zm(cl[1]));lfA.position.y=-0.19;lfA.castShadow=true;lFG.add(lfA);
-  var lfA2=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.36,0.11),zm(s[1]));lfA2.position.y=-0.18;lFG.add(lfA2);
-  var lfs=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.22,0.14),zm(cl[2]));lfs.position.set(0.04,-0.28,0);lfs.rotation.z=0.20;lFG.add(lfs);
-  // Exposed tendons (bright)
-  var ltd=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.30,0.008),zm(0xc8a860));ltd.position.y=-0.15;lFG.add(ltd);
-  // Hand + long fingers
-  box(0.12,0.10,0.11,s[0],-0.46,-0.08,0.10);
+  // ── ARMS (as groups, hanging low) ──
+  var lAG=new THREE.Group();lAG.position.set(-0.30,0.90,0);
+  lAG.rotation.z=0.35;lAG.rotation.x=0.20;g.add(lAG);
+  var a1=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.46,0.16),zm(clothCol));a1.position.y=-0.23;a1.castShadow=true;lAG.add(a1);
+  var a2=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.42,0.13),zm(skinCol));a2.position.y=-0.21;lAG.add(a2);
+
+  var lFG=new THREE.Group();lFG.position.set(-0.42,0.42,0.04);
+  lFG.rotation.z=0.25;lFG.rotation.x=0.35;g.add(lFG);
+  var a3=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.42,0.14),zm(skinCol));a3.position.y=-0.21;a3.castShadow=true;lFG.add(a3);
+  // torn sleeve
+  var as1=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.22,0.15),zm(clothDark));as1.position.set(0.05,-0.30,0);as1.rotation.z=0.18;lFG.add(as1);
+  // hand
+  var ah1=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.10,0.12),zm(skinCol));ah1.position.set(0,-0.38,0);lFG.add(ah1);
+  // fingers
   for(var fi=0;fi<4;fi++){
-    box(0.022,0.18,0.022,s[1],-0.41+fi*0.026,-0.18,0.12,0.52);
-    box(0.016,0.06,0.016,0x404030,-0.41+fi*0.026,-0.27,0.14,0.65);// dark claw
+    var af=new THREE.Mesh(new THREE.BoxGeometry(0.024,0.20,0.024),zm(skinDark));af.position.set(-0.045+fi*0.030,-0.52,0);af.rotation.x=0.5;lFG.add(af);
+    var ac=new THREE.Mesh(new THREE.BoxGeometry(0.016,0.06,0.016),zm(clothDark));ac.position.set(-0.045+fi*0.030,-0.65,0.03);lFG.add(ac);
   }
 
-  var rAG=new THREE.Group();rAG.position.set( 0.28,0.80,0.02);
-  rAG.rotation.z=-0.28;rAG.rotation.x=0.13;g.add(rAG);
-  var ruA=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.42,0.15),zm(cl[1]));ruA.position.y=-0.21;ruA.castShadow=true;rAG.add(ruA);
-  var ruA2=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.40,0.13),zm(s[0]));ruA2.position.y=-0.20;rAG.add(ruA2);
-  var rss=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.16),zm(cl[2]));rss.position.set(-0.06,-0.32,0);rss.rotation.z=-0.15;rAG.add(rss);
+  var rAG=new THREE.Group();rAG.position.set( 0.30,0.90,0);
+  rAG.rotation.z=-0.30;rAG.rotation.x=0.16;g.add(rAG);
+  var a4=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.46,0.16),zm(clothCol));a4.position.y=-0.23;a4.castShadow=true;rAG.add(a4);
+  var a5=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.42,0.13),zm(skinCol));a5.position.y=-0.21;rAG.add(a5);
 
-  var rFG=new THREE.Group();rFG.position.set( 0.40,0.38,0.05);
-  rFG.rotation.z=-0.20;rFG.rotation.x=0.24;g.add(rFG);
-  var rfA=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.38,0.13),zm(cl[1]));rfA.position.y=-0.19;rfA.castShadow=true;rFG.add(rfA);
-  var rfA2=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.36,0.11),zm(s[1]));rfA2.position.y=-0.18;rFG.add(rfA2);
-  var rfs=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.22,0.14),zm(cl[2]));rfs.position.set(-0.04,-0.28,0);rfs.rotation.z=-0.20;rFG.add(rfs);
-  var rtd=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.30,0.008),zm(0xc8a860));rtd.position.y=-0.15;rFG.add(rtd);
-  box(0.12,0.10,0.11,s[0], 0.46,-0.08,0.10);
+  var rFG=new THREE.Group();rFG.position.set( 0.42,0.42,0.04);
+  rFG.rotation.z=-0.22;rFG.rotation.x=0.28;g.add(rFG);
+  var a6=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.42,0.14),zm(skinCol));a6.position.y=-0.21;a6.castShadow=true;rFG.add(a6);
+  var as2=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.22,0.15),zm(clothDark));as2.position.set(-0.05,-0.30,0);as2.rotation.z=-0.18;rFG.add(as2);
+  var ah2=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.10,0.12),zm(skinCol));ah2.position.set(0,-0.38,0);rFG.add(ah2);
   for(var fi=0;fi<4;fi++){
-    box(0.022,0.18,0.022,s[1], 0.41+fi*0.026,-0.18,0.12,0.52);
-    box(0.016,0.06,0.016,0x404030, 0.41+fi*0.026,-0.27,0.14,0.65);
+    var af2=new THREE.Mesh(new THREE.BoxGeometry(0.024,0.20,0.024),zm(skinDark));af2.position.set(-0.045+fi*0.030,-0.52,0);af2.rotation.x=0.5;rFG.add(af2);
+    var ac2=new THREE.Mesh(new THREE.BoxGeometry(0.016,0.06,0.016),zm(clothDark));ac2.position.set(-0.045+fi*0.030,-0.65,0.03);rFG.add(ac2);
   }
 
-  // ── HEAD GROUP (broken neck) ──────────────────────────
-  var neckTiltZ=(Math.random()-0.5)*0.65;
-  var neckTiltX=0.12+Math.random()*0.22;
+  // ── NECK + HEAD (broken tilt, all in one group) ──
+  var neckTiltZ=(Math.random()-0.5)*0.55;
   var HG=new THREE.Group();
-  HG.position.set(0,1.10,0);
+  HG.position.set(0,1.16,0);
   HG.rotation.z=neckTiltZ;
-  HG.rotation.x=neckTiltX;
+  HG.rotation.x=0.12+Math.random()*0.18;
   g.add(HG);
 
   function hb(w,h,d,c,px,py,pz){
@@ -2325,134 +2317,112 @@ function mkZombie(type){
   }
 
   // Neck
-  var nkM=new THREE.Mesh(new THREE.CylinderGeometry(0.078,0.095,0.20,6),zm(s[0]));HG.add(nkM);
-  hb(0.068,0.052,0.20,0xaa2020,0,0.05,-0.102); // neck gash
-  hb(0.010,0.18,0.010,0xc8a860,-0.055,0.04,0); // tendon
-  hb(0.010,0.18,0.010,0xc8a860, 0.055,0.04,0);
+  var nk=new THREE.Mesh(new THREE.CylinderGeometry(0.082,0.100,0.22,7),zm(skinCol));HG.add(nk);
+  hb(0.08,0.06,0.22,0xcc1010,0,0.06,-0.11);// neck gash
+  hb(0.010,0.20,0.010,0xd4a850,-0.06,0.04,0);// tendon
+  hb(0.010,0.20,0.010,0xd4a850, 0.06,0.04,0);
 
-  // HEAD - much brighter so you can see face
-  var HO=0.21;
-  hb(0.37,0.40,0.34,s[0],0,HO,0); // skull
-  if(type===2){HG.children[HG.children.length-1].scale.set(1.28,1.28,1.28);}
-  hb(0.35,0.16,0.31,s[0],0,HO+0.16,0.02);  // forehead
-  hb(0.10,0.14,0.30,s[2],-0.16,HO+0.02,-0.02); // sunken cheek L
-  hb(0.10,0.14,0.30,s[2], 0.16,HO+0.02,-0.02); // sunken cheek R
-  // Cheekbones (protruding bright)
-  hb(0.06,0.05,0.30,s[0],-0.17,HO+0.04,-0.03);
-  hb(0.06,0.05,0.30,s[0], 0.17,HO+0.04,-0.03);
-  // Exposed skull patches
-  hb(0.11,0.09,0.04,0xddd0a0,-0.09,HO+0.22,-0.17);
-  hb(0.09,0.07,0.04,0xd4c898, 0.08,HO+0.24,-0.16);
+  // HEAD - big, clearly shaped skull
+  var HO=0.24;
+  hb(0.40,0.44,0.36,skinCol,    0,HO,  0);// skull
+  hb(0.36,0.18,0.33,skinCol,    0,HO+0.20,0.02);// forehead bulge
+  hb(0.11,0.16,0.32,skinDark,  -0.17,HO+0.02,-0.02);// sunken cheek L
+  hb(0.11,0.16,0.32,skinDark,   0.17,HO+0.02,-0.02);// sunken cheek R
+  hb(0.12,0.10,0.36,0xaa7050,   0,HO-0.16,-0.02);// chin/jaw area
+  // Skull bone showing
+  hb(0.12,0.10,0.04,boneCol,-0.10,HO+0.25,-0.18);
+  hb(0.10,0.08,0.04,boneCol, 0.09,HO+0.27,-0.16);
 
-  // EYE SOCKETS (very dark deep holes)
-  hb(0.13,0.12,0.08,0x0a0404,-0.10,HO+0.07,-0.17);
-  hb(0.13,0.12,0.08,0x0a0404, 0.10,HO+0.07,-0.17);
-  // Milky white eyes (very bright - clearly visible)
-  var ewM=new THREE.MeshBasicMaterial({color:0xeee8d8});
-  var erM=new THREE.MeshBasicMaterial({color:0xff2200});
-  var ebM=new THREE.MeshBasicMaterial({color:0x330000});
-  var ewL=new THREE.Mesh(new THREE.SphereGeometry(0.048,6,6),ewM);ewL.position.set(-0.10,HO+0.07,-0.17);HG.add(ewL);
-  var ewR=new THREE.Mesh(new THREE.SphereGeometry(0.048,6,6),ewM);ewR.position.set( 0.10,HO+0.07,-0.17);HG.add(ewR);
-  // Red glowing iris
-  var irL=new THREE.Mesh(new THREE.SphereGeometry(0.030,6,6),erM);irL.position.set(-0.088,HO+0.073,-0.210);HG.add(irL);
-  var irR=new THREE.Mesh(new THREE.SphereGeometry(0.030,6,6),erM);irR.position.set( 0.114,HO+0.066,-0.210);HG.add(irR);
-  var puL=new THREE.Mesh(new THREE.SphereGeometry(0.015,5,5),ebM);puL.position.set(-0.088,HO+0.073,-0.225);HG.add(puL);
-  var puR=new THREE.Mesh(new THREE.SphereGeometry(0.015,5,5),ebM);puR.position.set( 0.114,HO+0.066,-0.225);HG.add(puR);
-  // Bright red bloodshot veins
-  var vnM=new THREE.MeshBasicMaterial({color:0xff2200});
-  for(var vi=0;vi<4;vi++){
-    var vl=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.006,0.038),vnM);vl.position.set(-0.10+(vi-1.5)*0.013,HO+0.075,-0.206);HG.add(vl);
-    var vr=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.006,0.038),vnM);vr.position.set( 0.10+(vi-1.5)*0.013,HO+0.069,-0.206);HG.add(vr);
-  }
-  // Black ooze dripping from eye
-  hb(0.014,0.060,0.020,0x080808,-0.10,HO-0.006,-0.186);
-  // Strong eye glow (so face is lit in dark)
-  var eg=new THREE.PointLight(0xff2200,2.5,3.5);eg.position.set(0,HO+0.07,-0.18);HG.add(eg);
+  // EYES - very deep dark sockets
+  hb(0.14,0.13,0.09,0x060202,-0.11,HO+0.08,-0.18);
+  hb(0.14,0.13,0.09,0x060202, 0.11,HO+0.08,-0.18);
+  // White eyeballs
+  var ewL=new THREE.Mesh(new THREE.SphereGeometry(0.052,7,7),new THREE.MeshBasicMaterial({color:0xeee8d0}));ewL.position.set(-0.11,HO+0.08,-0.185);HG.add(ewL);
+  var ewR=new THREE.Mesh(new THREE.SphereGeometry(0.052,7,7),new THREE.MeshBasicMaterial({color:0xeee8d0}));ewR.position.set( 0.11,HO+0.08,-0.185);HG.add(ewR);
+  // Glowing red iris
+  var irL=new THREE.Mesh(new THREE.SphereGeometry(0.032,7,7),new THREE.MeshBasicMaterial({color:0xff1100}));irL.position.set(-0.098,HO+0.084,-0.222);HG.add(irL);
+  var irR=new THREE.Mesh(new THREE.SphereGeometry(0.032,7,7),new THREE.MeshBasicMaterial({color:0xff1100}));irR.position.set( 0.122,HO+0.076,-0.222);HG.add(irR);
+  // Pupils
+  var puL=new THREE.Mesh(new THREE.SphereGeometry(0.016,5,5),new THREE.MeshBasicMaterial({color:0x220000}));puL.position.set(-0.098,HO+0.084,-0.236);HG.add(puL);
+  var puR=new THREE.Mesh(new THREE.SphereGeometry(0.016,5,5),new THREE.MeshBasicMaterial({color:0x220000}));puR.position.set( 0.122,HO+0.076,-0.236);HG.add(puR);
+  // Black ooze from eye
+  hb(0.015,0.065,0.022,0x080808,-0.11,HO+0.002,-0.196);
+  // Strong eye glow
+  var eg=new THREE.PointLight(0xff2200,3.0,4.0);eg.position.set(0,HO+0.08,-0.19);HG.add(eg);
 
-  // NOSE collapsed
-  hb(0.080,0.065,0.050,s[2],0,HO-0.014,-0.190);
-  var nhM=new THREE.MeshBasicMaterial({color:0x050202});
-  var nh1=new THREE.Mesh(new THREE.CircleGeometry(0.020,7),nhM);nh1.position.set(-0.028,HO-0.012,-0.216);nh1.rotation.x=-0.25;HG.add(nh1);
-  var nh2=new THREE.Mesh(new THREE.CircleGeometry(0.020,7),nhM);nh2.position.set( 0.028,HO-0.012,-0.216);nh2.rotation.x=-0.25;HG.add(nh2);
-  hb(0.034,0.055,0.028,0xddd098,0,HO+0.038,-0.200); // nose bone
+  // NOSE
+  hb(0.085,0.070,0.052,skinDark,0,HO-0.010,-0.196);
+  var nhM=new THREE.MeshBasicMaterial({color:0x040100});
+  var nh1=new THREE.Mesh(new THREE.CircleGeometry(0.022,7),nhM);nh1.position.set(-0.030,HO-0.006,-0.222);nh1.rotation.x=-0.3;HG.add(nh1);
+  var nh2=new THREE.Mesh(new THREE.CircleGeometry(0.022,7),nhM);nh2.position.set( 0.030,HO-0.006,-0.222);nh2.rotation.x=-0.3;HG.add(nh2);
 
-  // JAW hanging wide open
-  var JG=new THREE.Group();
-  JG.position.set(0,HO-0.10,-0.02);
-  JG.rotation.x=0.58+Math.random()*0.24;
-  JG.rotation.z=neckTiltZ*0.38;
-  HG.add(JG);
-  // Jaw bone
-  var jwB=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.13,0.24),zm(s[1]));jwB.position.y=-0.055;JG.add(jwB);
-  var jwEx=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.055,0.20),zm(0xd4c890));jwEx.position.set(0,-0.036,-0.01);JG.add(jwEx);
-  // Broken yellowed teeth
-  var tcs=[0xd8c058,0xc0a830,0xe0cc68,0xb09828,0xc8b040,0xd0b848];
+  // JAW wide open
+  var JG=new THREE.Group();JG.position.set(0,HO-0.12,-0.02);
+  JG.rotation.x=0.62+Math.random()*0.22;JG.rotation.z=neckTiltZ*0.35;HG.add(JG);
+  var jwB=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.14,0.26),zm(skinDark));jwB.position.y=-0.06;JG.add(jwB);
+  var jwBone=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.06,0.22),zm(boneCol));jwBone.position.set(0,-0.04,-0.01);JG.add(jwBone);
+  // Teeth - yellow broken
+  var tc=[0xd8c050,0xc0a828,0xe0cc60,0xa88018,0xc8b038];
   for(var ti=0;ti<6;ti++){
-    var tth=new THREE.Mesh(new THREE.BoxGeometry(0.043,0.055+Math.random()*0.055,0.036),zm(tcs[ti]));
-    tth.position.set(-0.102+ti*0.042,-0.008,-0.116);
-    tth.rotation.z=(Math.random()-0.5)*0.28;JG.add(tth);
+    var tt=new THREE.Mesh(new THREE.BoxGeometry(0.046,0.060+Math.random()*0.058,0.038),zm(tc[ti%5]));
+    tt.position.set(-0.110+ti*0.044,-0.006,-0.122);tt.rotation.z=(Math.random()-0.5)*0.30;JG.add(tt);
   }
-  var gpM=new THREE.Mesh(new THREE.BoxGeometry(0.047,0.037,0.038),zm(0x060402));gpM.position.set(-0.016,-0.008,-0.116);JG.add(gpM);
-  var gumM=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.026,0.048),zm(0x882020));gumM.position.set(0,-0.001,-0.116);JG.add(gumM);
-  // Tongue (bright pink-red, clearly visible)
-  var tG=new THREE.Group();tG.position.set(0,-0.016,-0.126);tG.rotation.z=neckTiltZ*0.42;JG.add(tG);
-  var tB=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.048,0.15),zm(0xaa2840));tB.position.z=0.05;tG.add(tB);
-  var tT=new THREE.Mesh(new THREE.BoxGeometry(0.092,0.038,0.068),zm(0x902030));tT.position.set(0,-0.004,0.135);tG.add(tT);
+  var gumM=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.028,0.050),zm(0x992222));gumM.position.set(0,0.002,-0.122);JG.add(gumM);
+  // Tongue - bright and visible
+  var tB=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.052,0.16),zm(0xcc3050));tB.position.set(0,-0.018,-0.070);JG.add(tB);
+  var tT=new THREE.Mesh(new THREE.BoxGeometry(0.100,0.040,0.072),zm(0xaa2040));tT.position.set(0,-0.022,-0.150);JG.add(tT);
   // Drool
-  var dm=zm(0x361010);
-  var dr1=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.003,0.078,4),dm);dr1.position.set(0.038,-0.098,-0.108);JG.add(dr1);
-  var dr2=new THREE.Mesh(new THREE.CylinderGeometry(0.005,0.002,0.055,4),dm);dr2.position.set(-0.055,-0.090,-0.090);JG.add(dr2);
+  var drM=zm(0x442020);
+  var dr1=new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.003,0.085,4),drM);dr1.position.set(0.040,-0.105,-0.112);JG.add(dr1);
+  var dr2=new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.002,0.060,4),drM);dr2.position.set(-0.058,-0.096,-0.092);JG.add(dr2);
 
   // Upper teeth
   for(var ti=0;ti<6;ti++){
-    var ut=new THREE.Mesh(new THREE.BoxGeometry(0.043,0.050+Math.random()*0.044,0.038),zm(tcs[ti]));
-    ut.position.set(-0.106+ti*0.044,HO-0.082,-0.178);ut.rotation.z=(Math.random()-0.5)*0.22;HG.add(ut);
+    var ut=new THREE.Mesh(new THREE.BoxGeometry(0.044,0.052+Math.random()*0.046,0.040),zm(tc[ti%5]));
+    ut.position.set(-0.112+ti*0.046,HO-0.080,-0.185);ut.rotation.z=(Math.random()-0.5)*0.24;HG.add(ut);
   }
-  hb(0.28,0.028,0.058,0x882020,0,HO-0.072,-0.178); // gum
+  hb(0.30,0.030,0.060,0x992222,0,HO-0.069,-0.185);// upper gum
 
-  // Face wounds (bright red - visible)
-  hb(0.13,0.060,0.055,0xcc1010, 0.11,HO+0.040,-0.188);
-  hb(0.09,0.052,0.055,0xaa0808,-0.08,HO+0.022,-0.188);
-  hb(0.028,0.12,0.038,0x990808,-0.020,HO+0.20,-0.178);
-  hb(0.11,0.044,0.040,0x2a1010,-0.09,HO+0.015,-0.188);
-  hb(0.11,0.044,0.040,0x2a1010, 0.09,HO+0.013,-0.188);
-  if(type>0){
-    var cav=new THREE.Mesh(new THREE.SphereGeometry(0.052,6,6),zm(0x1a0808));cav.position.set(0.11,HO+0.26,0.09);cav.scale.set(1,0.48,1);HG.add(cav);
-  }
+  // Face wounds
+  hb(0.14,0.065,0.058,0xdd1010, 0.12,HO+0.045,-0.196);
+  hb(0.10,0.055,0.058,0xbb0808,-0.09,HO+0.025,-0.196);
+  hb(0.030,0.13,0.042,0xaa0808,-0.022,HO+0.21,-0.186);
+  // Dark rot under eyes
+  hb(0.13,0.048,0.042,0x2c1010,-0.10,HO+0.020,-0.196);
+  hb(0.13,0.048,0.042,0x2c1010, 0.10,HO+0.018,-0.196);
 
-  // Hair
-  hb(0.370,0.13,0.360,0x201808,0,HO+0.28,0);
-  hb(0.190,0.16,0.130,0x201808,-0.108,HO+0.28,0.180);
-  hb(0.140,0.14,0.110,0x181406, 0.118,HO+0.26,0.168);
-  hb(0.12,0.022,0.14,s[1], 0.040,HO+0.31,-0.040);
-  hb(0.10,0.022,0.11,s[1],-0.060,HO+0.31, 0.070);
-  hb(0.065,0.22,0.060,0x181406,-0.170,HO+0.13,0.128);
-  hb(0.055,0.18,0.050,0x181406, 0.138,HO+0.12,0.110);
+  // Hair - dark matted
+  hb(0.42,0.14,0.38,0x1e1606,0,HO+0.30,0);
+  hb(0.20,0.18,0.14,0x1e1606,-0.11,HO+0.30,0.185);
+  hb(0.16,0.15,0.12,0x161204, 0.12,HO+0.28,0.172);
+  hb(0.13,0.022,0.15,skinDark, 0.04,HO+0.33,-0.04);// bald patch
+  hb(0.11,0.022,0.12,skinDark,-0.06,HO+0.33, 0.07);
+  hb(0.07,0.24,0.065,0x161204,-0.175,HO+0.14,0.132);// hanging hair
+  hb(0.06,0.20,0.055,0x161204, 0.142,HO+0.13,0.115);
 
-  if(type===2){
+  if(t2===2){
     for(var sp=0;sp<8;sp++){
-      var spM=new THREE.Mesh(new THREE.ConeGeometry(0.072,0.58,4),zm(0x2a0808));spM.position.set((sp-3.5)*0.202,HO+0.48,0);HG.add(spM);
+      var spM=new THREE.Mesh(new THREE.ConeGeometry(0.078,0.62,4),zm(0x2a0808));spM.position.set((sp-3.5)*0.21,HO+0.52,0);HG.add(spM);
     }
-    hb(0.17,0.12,0.048,0xddd0a0,-0.12,HO+0.35,-0.17);
-    hb(0.14,0.10,0.048,0xd4c898, 0.10,HO+0.37,-0.15);
+    hb(0.18,0.13,0.050,boneCol,-0.12,HO+0.37,-0.18);
+    hb(0.15,0.11,0.050,boneCol, 0.11,HO+0.39,-0.16);
   }
 
-  // Personal zombie light so face is ALWAYS visible
-  var zLight=new THREE.PointLight(0xffaa66,1.2,4.5);
-  zLight.position.set(0,1.5,0);g.add(zLight);
+  // Personal light so zombie is ALWAYS visible
+  var zL=new THREE.PointLight(0xffbb88,1.8,5.0);zL.position.set(0,1.6,0);g.add(zL);
 
   // HP BAR
-  var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.86,0.15),new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
-  hpBg.position.set(0,2.18,0);hpBg.renderOrder=1;g.add(hpBg);
-  var hpBar=new THREE.Mesh(new THREE.PlaneGeometry(0.82,0.12),new THREE.MeshBasicMaterial({color:0x22ff22,side:THREE.DoubleSide,depthTest:false}));
-  hpBar.position.set(0,2.18,0.002);hpBar.renderOrder=2;g.add(hpBar);
+  var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.88,0.16),new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
+  hpBg.position.set(0,2.20,0);hpBg.renderOrder=1;g.add(hpBg);
+  var hpBar=new THREE.Mesh(new THREE.PlaneGeometry(0.84,0.13),new THREE.MeshBasicMaterial({color:0x22ff22,side:THREE.DoubleSide,depthTest:false}));
+  hpBar.position.set(0,2.20,0.002);hpBar.renderOrder=2;g.add(hpBar);
 
   g._hpBar=hpBar;
   g._lTG=lTG;g._rTG=rTG;g._lSG=lSG;g._rSG=rSG;
   g._lAG=lAG;g._rAG=rAG;g._lFG=lFG;g._rFG=rFG;
   g._hd=HG;g._headGroup=HG;g._neckTiltZ=neckTiltZ;
-  g._type=type;g._maxHp=200*(type+1);g._hp=g._maxHp;
-  g._spd=[0.042,0.030,0.018][Math.min(type,2)];
+  g._type=t2;g._maxHp=200*(t2+1);g._hp=g._maxHp;
+  g._spd=[0.042,0.030,0.018][t2];
   g._wk=Math.random()*6.28;g._atkT=0;g._dead=false;g._dT=0;
   g._gT=Math.floor(Math.random()*140+70);
   return g;
