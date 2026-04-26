@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zombie Apocalypse — Deadly Edition</title>
+<meta name="description" content="Play Zombie Apocalypse: Deadly Edition — a free browser FPS zombie survival game. Fight waves of terrifying zombies with AK-47, Crossbow, Sniper and Knife.">
+<meta property="og:title" content="Zombie Apocalypse — Deadly Edition"/>
+<meta property="og:description" content="Free browser FPS zombie survival game. No download needed!"/>
+<meta property="og:type" content="website"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#060a03;font-family:'Segoe UI',sans-serif;color:#fff;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,255,136,0.1);}
+.logo{font-size:14px;font-weight:900;letter-spacing:4px;color:#00ff88;}
+.navPlay{background:#00ff88;color:#000;border:none;padding:8px 22px;font-weight:700;font-size:12px;letter-spacing:2px;border-radius:4px;cursor:pointer;text-decoration:none;}
+.navPlay:hover{background:#00dd70;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 20px 60px;background:radial-gradient(ellipse at center, rgba(0,60,20,0.3) 0%, transparent 70%);}
+.heroTag{font-size:11px;letter-spacing:8px;color:#00ff88;margin-bottom:12px;font-weight:600;}
+.heroTitle{font-size:clamp(42px,8vw,88px);font-weight:900;letter-spacing:4px;line-height:1;margin-bottom:8px;}
+.heroTitle span{color:#00ff88;}
+.heroSub{font-size:14px;letter-spacing:6px;color:#ff4400;margin-bottom:24px;font-weight:600;}
+.heroDesc{color:rgba(255,255,255,0.45);font-size:14px;max-width:480px;line-height:1.8;margin-bottom:40px;}
+.playBtn{display:inline-block;background:linear-gradient(135deg,#00ff88,#00cc66);color:#000;padding:18px 60px;font-size:16px;font-weight:900;letter-spacing:4px;border-radius:6px;text-decoration:none;box-shadow:0 0 40px rgba(0,255,136,0.3);transition:all 0.2s;}
+.playBtn:hover{transform:translateY(-2px);box-shadow:0 0 60px rgba(0,255,136,0.5);}
+.heroNote{margin-top:16px;color:rgba(255,255,255,0.25);font-size:11px;letter-spacing:2px;}
+
+/* STATS BAR */
+.stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;padding:32px 20px;background:rgba(0,255,136,0.04);border-top:1px solid rgba(0,255,136,0.1);border-bottom:1px solid rgba(0,255,136,0.1);}
+.stat{text-align:center;}
+.statNum{font-size:28px;font-weight:900;color:#00ff88;}
+.statLabel{font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);margin-top:2px;}
+
+/* FEATURES */
+.features{padding:80px 20px;max-width:1100px;margin:0 auto;}
+.sectionTitle{text-align:center;font-size:11px;letter-spacing:6px;color:#00ff88;margin-bottom:8px;}
+.sectionH2{text-align:center;font-size:32px;font-weight:900;margin-bottom:50px;}
+.featureGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.featureCard{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:24px;transition:border-color 0.2s;}
+.featureCard:hover{border-color:rgba(0,255,136,0.3);}
+.featureIcon{font-size:28px;margin-bottom:12px;}
+.featureTitle{font-size:14px;font-weight:700;margin-bottom:8px;letter-spacing:1px;}
+.featureDesc{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.8;}
+
+/* WEAPONS */
+.weapons{padding:80px 20px;background:rgba(0,0,0,0.3);}
+.weaponGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1000px;margin:40px auto 0;}
+.weaponCard{border-radius:8px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+.weaponCard.ak{background:linear-gradient(135deg,rgba(255,100,0,0.1),rgba(255,50,0,0.05));}
+.weaponCard.cb{background:linear-gradient(135deg,rgba(100,100,255,0.1),rgba(50,50,200,0.05));}
+.weaponCard.sn{background:linear-gradient(135deg,rgba(255,200,0,0.1),rgba(200,150,0,0.05));}
+.weaponCard.kn{background:linear-gradient(135deg,rgba(200,0,0,0.1),rgba(150,0,0,0.05));}
+.wIcon{font-size:32px;margin-bottom:10px;}
+.wName{font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:6px;}
+.wDesc{font-size:11px;color:rgba(255,255,255,0.4);line-height:1.7;}
+.wTag{display:inline-block;margin-top:8px;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;}
+.tagRed{background:rgba(255,50,50,0.2);color:#ff6666;}
+.tagBlue{background:rgba(50,150,255,0.2);color:#66aaff;}
+.tagGold{background:rgba(255,200,0,0.2);color:#ffcc44;}
+.tagGreen{background:rgba(0,255,136,0.2);color:#00ff88;}
+
+/* HOW TO PLAY */
+.howto{padding:80px 20px;max-width:800px;margin:0 auto;}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:36px;}
+.controlRow{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px 16px;}
+.key{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:4px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:1px;min-width:48px;text-align:center;}
+.keyDesc{font-size:12px;color:rgba(255,255,255,0.55);}
+
+/* CTA */
+.cta{text-align:center;padding:100px 20px;background:radial-gradient(ellipse at center,rgba(0,60,20,0.4) 0%,transparent 70%);}
+.ctaH2{font-size:40px;font-weight:900;margin-bottom:12px;}
+.ctaSub{color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:36px;}
+
+/* FOOTER */
+footer{text-align:center;padding:32px;border-top:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.2);font-size:11px;letter-spacing:2px;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:#0a0a0a;}
+::-webkit-scrollbar-thumb{background:#00ff8844;border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">🧟 ZOMBIE APOCALYPSE</div>
+  <a class="navPlay" href="game.html">▶ PLAY NOW</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="heroTag">FREE BROWSER GAME — NO DOWNLOAD</div>
+  <h1 class="heroTitle">ZOMBIE<br><span>APOCALYPSE</span></h1>
+  <div class="heroSub">DEADLY EDITION</div>
+  <p class="heroDesc">Survive endless waves of terrifying zombies in a spooky forest. Fight with AK-47, Crossbow, Sniper Rifle and Knife. Backstab for instant kills.</p>
+  <a class="playBtn" href="game.html">▶ &nbsp;PLAY FREE NOW</a>
+  <div class="heroNote">RUNS IN CHROME · NO DOWNLOAD · FREE</div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="statNum">4</div><div class="statLabel">WEAPONS</div></div>
+  <div class="stat"><div class="statNum">3</div><div class="statLabel">ZOMBIE TYPES</div></div>
+  <div class="stat"><div class="statNum">∞</div><div class="statLabel">WAVES</div></div>
+  <div class="stat"><div class="statNum">FPS</div><div class="statLabel">FIRST PERSON</div></div>
+  <div class="stat"><div class="statNum">FREE</div><div class="statLabel">FOREVER</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="sectionTitle">FEATURES</div>
+  <h2 class="sectionH2">Everything You Need to Survive</h2>
+  <div class="featureGrid">
+    <div class="featureCard">
+      <div class="featureIcon">🎮</div>
+      <div class="featureTitle">FIRST PERSON VIEW</div>
+      <div class="featureDesc">Full FPS experience with mouse look, head bob, gun sway and realistic weapon animations.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">🌲</div>
+      <div class="featureTitle">SPOOKY FOREST MAP</div>
+      <div class="featureDesc">Dense dark forest with 6 haunted houses, gravestones, campfire, old well and glowing mushrooms.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">🧟</div>
+      <div class="featureTitle">TERRIFYING ZOMBIES</div>
+      <div class="featureDesc">3 types of zombies — each with broken neck tilt, milky eyes, hanging jaw, exposed ribs and glowing red eyes.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">🔭</div>
+      <div class="featureTitle">SNIPER SCOPE</div>
+      <div class="featureDesc">Press E for scope on AK-47, Crossbow and Sniper. Headshot with sniper = instant kill.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">🔪</div>
+      <div class="featureTitle">KNIFE BACKSTAB</div>
+      <div class="featureDesc">Sneak behind any zombie and stab for instant kill. Approach + click to stab in melee range.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">👤</div>
+      <div class="featureTitle">ACCOUNTS SYSTEM</div>
+      <div class="featureDesc">Create an account with username and password. Scores and progress saved per account.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">⚙️</div>
+      <div class="featureTitle">FULL SETTINGS</div>
+      <div class="featureDesc">Customize crosshair style, color, size. Adjust FOV, sensitivity, graphics quality and more.</div>
+    </div>
+    <div class="featureCard">
+      <div class="featureIcon">⬆️</div>
+      <div class="featureTitle">JUMP + PHYSICS</div>
+      <div class="featureDesc">Press Space to jump with real gravity. Realistic head bob while walking.</div>
+    </div>
+  </div>
+</section>
+
+<!-- WEAPONS -->
+<section class="weapons">
+  <div class="sectionTitle" style="text-align:center;">ARSENAL</div>
+  <h2 class="sectionH2" style="text-align:center;">4 Weapons to Choose From</h2>
+  <div class="weaponGrid">
+    <div class="weaponCard ak">
+      <div class="wIcon">🔫</div>
+      <div class="wName">AK-47</div>
+      <div class="wDesc">30 rounds. Fast fire rate. Random damage — headshots deal 25–40, body 8–16. Iron sight scope.</div>
+      <div class="wTag tagRed">KEY [1]</div>
+    </div>
+    <div class="weaponCard cb">
+      <div class="wIcon">🏹</div>
+      <div class="wName">CROSSBOW</div>
+      <div class="wDesc">6 bolts. High damage — headshots 80–120, body 30–50. Full sniper circle scope.</div>
+      <div class="wTag tagBlue">KEY [2]</div>
+    </div>
+    <div class="weaponCard sn">
+      <div class="wIcon">🎯</div>
+      <div class="wName">SNIPER .50 CAL</div>
+      <div class="wDesc">5 rounds. Headshot = INSTANT KILL on any zombie. Body shot 120–200. Extreme zoom scope.</div>
+      <div class="wTag tagGold">KEY [4]</div>
+    </div>
+    <div class="weaponCard kn">
+      <div class="wIcon">🔪</div>
+      <div class="wName">COMBAT KNIFE</div>
+      <div class="wDesc">Unlimited. Approach zombie and click to stab. Sneak behind for INSTANT BACKSTAB KILL.</div>
+      <div class="wTag tagGreen">KEY [3]</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO PLAY -->
+<section class="howto">
+  <div class="sectionTitle" style="text-align:center;">CONTROLS</div>
+  <h2 class="sectionH2" style="text-align:center;">How to Play</h2>
+  <div class="controls">
+    <div class="controlRow"><div class="key">WASD</div><div class="keyDesc">Move around</div></div>
+    <div class="controlRow"><div class="key">MOUSE</div><div class="keyDesc">Look / Aim</div></div>
+    <div class="controlRow"><div class="key">CLICK</div><div class="keyDesc">Shoot / Stab</div></div>
+    <div class="controlRow"><div class="key">SPACE</div><div class="keyDesc">Jump</div></div>
+    <div class="controlRow"><div class="key">R</div><div class="keyDesc">Reload weapon</div></div>
+    <div class="controlRow"><div class="key">E</div><div class="keyDesc">Toggle scope</div></div>
+    <div class="controlRow"><div class="key">1-4</div><div class="keyDesc">Switch weapons</div></div>
+    <div class="controlRow"><div class="key">ESC</div><div class="keyDesc">Release mouse</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2 class="ctaH2">Ready to Survive? 🧟</h2>
+  <p class="ctaSub">Free to play. No download. Works in Chrome.</p>
+  <a class="playBtn" href="game.html">▶ &nbsp;PLAY NOW</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  ZOMBIE APOCALYPSE · DEADLY EDITION · BUILT WITH THREE.JS · FREE FOREVER
+</footer>
+
+</body>
+</html>
