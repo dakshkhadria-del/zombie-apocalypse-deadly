@@ -2140,337 +2140,354 @@ akM.position.set(0.22,-0.22,-0.47);cbM.position.set(0.16,-0.2,-0.45);knM.positio
 // ── ZOMBIE ──────────────────────────────────────────────
 function mkZombie(type){
   var g=new THREE.Group();
-  // Skin: grey-green rotting, pallid, bloody
-  var SKN=[
-    [0x8a7060,0x7a6050,0x6a5040,0x5a4030,0x4a3020],  // type 0: grey-tan rotting
-    [0x607050,0x506040,0x405030,0x304020,0x203010],  // type 1: green-grey putrid
-    [0x7a2020,0x6a1818,0x5a1010,0x4a0808,0x3a0404]   // type 2: bloody red boss
+
+  // Skin: very dark rotting brown-grey like the image
+  var SK=[
+    [0x6b5040,0x5a4030,0x4a3020,0x3a2415,0x2a1808], // type0: dark rotting brown
+    [0x506040,0x405030,0x304020,0x203015,0x102008], // type1: putrid green-brown
+    [0x7a2a20,0x6a1e18,0x5a1410,0x4a0c08,0x3a0604]  // type2: bloody boss
   ][Math.min(type,2)];
-  var CLT=[[0x1a1208,0x120e05],[0x101808,0x0a1204],[0x140808,0x0e0504]][Math.min(type,2)];
-  var s=SKN,cl=CLT;
+  // Clothing: very dark dirty brown/grey suit like image
+  var CL=[
+    [0x2a2218,0x1e1810,0x16120c,0x0e0c08], // dirty brown suit
+    [0x1a2210,0x121a0a,0x0e1408,0x080e04], // dark green-brown
+    [0x1e1010,0x160c0c,0x100808,0x080404]  // dark bloody
+  ][Math.min(type,2)];
+  var s=SK,cl=CL;
 
   function zm(c){return new THREE.MeshLambertMaterial({color:c});}
-  function zb(w,h,d,c,px,py,pz){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),zm(c));m.position.set(px,py,pz);m.castShadow=true;g.add(m);return m;}
-  function zc(rt,rb,h,seg,c,px,py,pz){var m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),zm(c));m.position.set(px,py,pz);m.castShadow=true;g.add(m);return m;}
+  function zb(w,h,d,c,px,py,pz,rx,ry,rz){
+    var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),zm(c));
+    m.position.set(px,py,pz);
+    if(rx!==undefined)m.rotation.x=rx;
+    if(ry!==undefined)m.rotation.y=ry;
+    if(rz!==undefined)m.rotation.z=rz;
+    m.castShadow=true;g.add(m);return m;
+  }
+  function zc(rt,rb,h,seg,c,px,py,pz){
+    var m=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg),zm(c));
+    m.position.set(px,py,pz);m.castShadow=true;g.add(m);return m;
+  }
 
-  // ── TORSO (ragged, decaying) ──────────────────────────
-  var torso=zb(0.48,0.62,0.32,cl[0],0,0.75,0);
-  if(type===2)torso.scale.set(1.45,1.12,1.45);
-  // Torn shirt shreds
-  zb(0.18,0.28,0.34,cl[1],0.14,0.64,0);
-  zb(0.15,0.20,0.34,cl[1],-0.15,0.79,0);
-  zb(0.24,0.04,0.34,cl[1],0,0.53,0);
-  // Rotting skin patches (grey-green)
-  zb(0.11,0.16,0.34,s[2],0.10,0.60,0);
-  zb(0.10,0.13,0.34,s[3],-0.12,0.72,0);
-  zb(0.08,0.09,0.34,s[4],0.03,0.51,0);
-  // Exposed rib cage (bone colour)
-  for(var ri=0;ri<5;ri++){
-    zb(0.44,0.045,0.09,0xb0a888,0,0.46+ri*0.10,-0.17);
+  // ── TORSO (hunched, like the image — leaning forward) ──
+  var torsoG=new THREE.Group();
+  torsoG.position.set(0,0.75,0);
+  torsoG.rotation.x=0.22;// hunched forward
+  g.add(torsoG);
+
+  // Torso body (slightly thinner than before, more human proportions)
+  var torsoM=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.58,0.28),zm(cl[0]));
+  torsoM.castShadow=true;torsoG.add(torsoM);
+
+  // Shirt/jacket layers — ragged dirty suit like image
+  var jacket=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.55,0.31),zm(cl[1]));
+  torsoG.add(jacket);
+  // Jacket lapels (darker strips)
+  var lapL=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.3,0.32),zm(cl[2]));lapL.position.set(-0.1,0.08,0);torsoG.add(lapL);
+  var lapR=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.3,0.32),zm(cl[2]));lapR.position.set( 0.1,0.08,0);torsoG.add(lapR);
+  // Torn fabric strips hanging down
+  var str1=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.18,0.32),zm(cl[2]));str1.position.set(-0.18,-0.32,0);str1.rotation.z=0.15;torsoG.add(str1);
+  var str2=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.22,0.32),zm(cl[3]));str2.position.set( 0.08,-0.3,0);str2.rotation.z=-0.1;torsoG.add(str2);
+  var str3=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.16,0.32),zm(cl[2]));str3.position.set( 0.2,-0.28,0);str3.rotation.z=0.2;torsoG.add(str3);
+  // Exposed chest/ribs through torn shirt
+  for(var ri=0;ri<4;ri++){
+    var rib=new THREE.Mesh(new THREE.BoxGeometry(0.36,0.038,0.06),zm(0xb0a880));
+    rib.position.set(0,0.12+ri*0.09,-0.16);torsoG.add(rib);
   }
-  zb(0.045,0.30,0.08,0xb0a888,-0.21,0.56,-0.17);// left spine
-  zb(0.045,0.30,0.08,0xb0a888, 0.21,0.56,-0.17);// right spine
-  // Exposed organs (dark reddish)
-  if(type>0){
-    zb(0.30,0.14,0.40,s[4],0,0.33,-0.18);
-    zb(0.08,0.17,0.08,0x6a3020,-0.16,0.44,-0.20);
-    zb(0.08,0.17,0.08,0x6a3020, 0.16,0.44,-0.20);
-  }
+  // Dark sternum bone
+  var stern=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.32,0.04),zm(0xa09878));
+  stern.position.set(0,0.12,-0.16);torsoG.add(stern);
+  // Skin showing through holes in suit
+  var skinL=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.12,0.32),zm(s[2]));skinL.position.set(-0.14,0.05,0);torsoG.add(skinL);
+  var skinR=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.12,0.32),zm(s[2]));skinR.position.set( 0.14,0.05,0);torsoG.add(skinR);
+
   if(type===2){
-    for(var spi=0;spi<6;spi++) zb(0.10,0.14,0.12,0xb0a888,0,0.43+spi*0.12,0.19);
-    // Boss has extra bulk on shoulders
-    zb(0.16,0.20,0.20,s[3],-0.36,0.96,0);
-    zb(0.16,0.20,0.20,s[3], 0.36,0.96,0);
+    torsoM.scale.set(1.35,1.1,1.35);jacket.scale.set(1.35,1.1,1.35);
   }
-  zb(0.48,0.23,0.33,cl[0],0,0.42,0);// hips
-  if(type===2) zb(0.16,0.16,0.40,s[4],0,0.31,-0.18);// gut spill
 
-  // ── LEGS ──────────────────────────────────────────────
-  var lTG=new THREE.Group();lTG.position.set(-0.14,0.31,0);
-  var ltb=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.38,0.24),zm(cl[0]));ltb.position.y=-0.19;ltb.castShadow=true;lTG.add(ltb);
-  zb(0.21,0.08,0.27,s[1],-0.14,-0.04,0);g.add(lTG);
-  var lSG=new THREE.Group();lSG.position.set(-0.14,0.0,0);
-  var lsb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.36,0.22),zm(s[0]));lsb.position.y=-0.18;lsb.castShadow=true;lSG.add(lsb);g.add(lSG);
-  zb(0.18,0.13,0.28,0x1a1208,-0.14,-0.11,0.03);
-  zb(0.20,0.04,0.30,0x100c04,-0.14,-0.04,0.03);
+  // ── HIPS/PELVIS ──────────────────────────────────────
+  var hipG=new THREE.Group();hipG.position.set(0,0.38,0);g.add(hipG);
+  var hips=new THREE.Mesh(new THREE.BoxGeometry(0.44,0.22,0.28),zm(cl[0]));hips.castShadow=true;hipG.add(hips);
+  // Trousers
+  var trousers=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.22,0.31),zm(cl[1]));hipG.add(trousers);
+  // Torn trouser strips
+  var ts1=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.15,0.32),zm(cl[2]));ts1.position.set(-0.2,-0.14,0);ts1.rotation.z=0.1;hipG.add(ts1);
+  var ts2=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.18,0.32),zm(cl[3]));ts2.position.set(0.18,-0.12,0);ts2.rotation.z=-0.15;hipG.add(ts2);
 
-  var rTG=new THREE.Group();rTG.position.set(0.14,0.31,0);
-  var rtb=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.38,0.24),zm(cl[0]));rtb.position.y=-0.19;rtb.castShadow=true;rTG.add(rtb);
-  zb(0.21,0.08,0.27,s[1],0.14,-0.04,0);g.add(rTG);
-  var rSG=new THREE.Group();rSG.position.set(0.14,0.0,0);
-  var rsb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.36,0.22),zm(s[0]));rsb.position.y=-0.18;rsb.castShadow=true;rSG.add(rsb);g.add(rSG);
-  zb(0.18,0.13,0.28,0x1a1208,0.14,-0.11,0.03);
-  zb(0.20,0.04,0.30,0x100c04,0.14,-0.04,0.03);
+  // ── LEGS (thin, bent slightly, long like the image) ────
+  var lTG=new THREE.Group();lTG.position.set(-0.13,0.28,0);
+  var ltb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.40,0.20),zm(cl[0]));
+  ltb.position.y=-0.20;ltb.castShadow=true;lTG.add(ltb);
+  // Trouser leg
+  var ltc=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.38,0.22),zm(cl[1]));ltc.position.y=-0.19;lTG.add(ltc);
+  // Torn strips on leg
+  var lts=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.2,0.23),zm(cl[2]));lts.position.set(0.08,-0.32,0);lts.rotation.z=0.1;lTG.add(lts);
+  g.add(lTG);
 
-  // ── ARMS (reaching, decomposed) ───────────────────────
-  var lAG=new THREE.Group();lAG.position.set(-0.33,0.95,0);
-  var lub=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.18),zm(s[0]));lub.position.y=-0.19;lub.castShadow=true;lAG.add(lub);
-  zb(0.15,0.08,0.20,s[1],-0.33,0.57,0);g.add(lAG);
-  var lFG=new THREE.Group();lFG.position.set(-0.33,0.55,0);
-  var lfb=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,0.16),zm(s[1]));lfb.position.y=-0.17;lfb.castShadow=true;lFG.add(lfb);g.add(lFG);
-  zb(0.13,0.12,0.15,s[2],-0.33,0.21,-0.06);
+  var lSG=new THREE.Group();lSG.position.set(-0.13,0.0,0);
+  var lsb=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.38,0.18),zm(s[0]));
+  lsb.position.y=-0.19;lsb.castShadow=true;lSG.add(lsb);
+  // Lower trouser
+  var lsl=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.36,0.20),zm(cl[1]));lsl.position.y=-0.18;lSG.add(lsl);
+  g.add(lSG);
+  // Bare foot (no shoes like image)
+  var lFoot=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.07,0.28),zm(s[2]));lFoot.position.set(-0.13,-0.08,0.04);lFoot.castShadow=true;g.add(lFoot);
+  var lToe=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.05,0.08),zm(s[3]));lToe.position.set(-0.13,-0.08,0.18);g.add(lToe);
+
+  var rTG=new THREE.Group();rTG.position.set( 0.13,0.28,0);
+  var rtb=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.40,0.20),zm(cl[0]));
+  rtb.position.y=-0.20;rtb.castShadow=true;rTG.add(rtb);
+  var rtc=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.38,0.22),zm(cl[1]));rtc.position.y=-0.19;rTG.add(rtc);
+  var rts=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.2,0.23),zm(cl[2]));rts.position.set(-0.08,-0.32,0);rts.rotation.z=-0.1;rTG.add(rts);
+  g.add(rTG);
+
+  var rSG=new THREE.Group();rSG.position.set( 0.13,0.0,0);
+  var rsb=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.38,0.18),zm(s[0]));
+  rsb.position.y=-0.19;rsb.castShadow=true;rSG.add(rsb);
+  var rsl=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.36,0.20),zm(cl[1]));rsl.position.y=-0.18;rSG.add(rsl);
+  g.add(rSG);
+  var rFoot=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.07,0.28),zm(s[2]));rFoot.position.set( 0.13,-0.08,0.04);rFoot.castShadow=true;g.add(rFoot);
+  var rToe=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.05,0.08),zm(s[3]));rToe.position.set( 0.13,-0.08,0.18);g.add(rToe);
+
+  // ── ARMS (long hanging low, like the image) ────────────
+  // Left arm — hangs very low, slightly forward
+  var lAG=new THREE.Group();
+  lAG.position.set(-0.28,0.68,0.04);
+  lAG.rotation.z=0.32;  // arm hangs outward
+  lAG.rotation.x=0.18;  // slightly forward
+  g.add(lAG);
+  var luArm=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.40,0.14),zm(cl[0]));
+  luArm.position.y=-0.20;luArm.castShadow=true;lAG.add(luArm);
+  // Sleeve
+  var luSl=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.16),zm(cl[1]));luSl.position.y=-0.19;lAG.add(luSl);
+  // Torn sleeve strips
+  var lss1=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.17),zm(cl[2]));lss1.position.set(0.06,-0.32,0);lss1.rotation.z=0.15;lAG.add(lss1);
+
+  var lFG=new THREE.Group();
+  lFG.position.set(-0.28,0.26,0.04);
+  lFG.rotation.z=0.18;
+  lFG.rotation.x=0.25;
+  g.add(lFG);
+  var lfArm=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.36,0.12),zm(s[0]));
+  lfArm.position.y=-0.18;lfArm.castShadow=true;lFG.add(lfArm);
+  // Sleeve lower
+  var lfSl=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,0.14),zm(cl[1]));lfSl.position.y=-0.17;lFG.add(lfSl);
+  // Torn strips hanging
+  var lfs1=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.22,0.15),zm(cl[2]));lfs1.position.set(0.05,-0.28,0);lfs1.rotation.z=0.2;lFG.add(lfs1);
+  var lfs2=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.18,0.15),zm(cl[3]));lfs2.position.set(-0.05,-0.25,0);lfs2.rotation.z=-0.15;lFG.add(lfs2);
+
+  // Left hand (long bony fingers like image)
+  var lHnd=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.09,0.12),zm(s[2]));
+  lHnd.position.set(-0.28,-0.06,0.12);lHnd.castShadow=true;g.add(lHnd);
   for(var fi=0;fi<4;fi++){
-    var fl2=new THREE.Mesh(new THREE.BoxGeometry(0.028,0.18,0.028),zm(s[3]));
-    fl2.position.set(-0.25+fi*0.030,0.10,-0.10);fl2.rotation.x=0.70;g.add(fl2);
+    var lFin=new THREE.Mesh(new THREE.BoxGeometry(0.022,0.18,0.022),zm(s[3]));
+    lFin.position.set(-0.24+fi*0.026,-0.12,0.14);lFin.rotation.x=0.55;g.add(lFin);
+    // Long claw/nail
+    var lClaw=new THREE.Mesh(new THREE.BoxGeometry(0.016,0.06,0.016),zm(s[4]));
+    lClaw.position.set(-0.24+fi*0.026,-0.22,0.16);lClaw.rotation.x=0.7;g.add(lClaw);
   }
-  zb(0.010,0.34,0.010,0xaa8060,-0.39,0.59,0);
-  zb(0.010,0.34,0.010,0xaa8060,-0.28,0.59,0);
+  // Exposed tendons on lower arm
+  var ltend1=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.30,0.008),zm(0xaa8850));ltend1.position.set(-0.32,-0.08,0.1);g.add(ltend1);
+  var ltend2=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.28,0.008),zm(0xaa8850));ltend2.position.set(-0.24,-0.08,0.1);g.add(ltend2);
 
-  var rAG=new THREE.Group();rAG.position.set(0.33,0.95,0);
-  var rub=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.18),zm(s[0]));rub.position.y=-0.19;rub.castShadow=true;rAG.add(rub);
-  zb(0.15,0.08,0.20,s[1],0.33,0.57,0);g.add(rAG);
-  var rFG=new THREE.Group();rFG.position.set(0.33,0.55,0);
-  var rfb=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,0.16),zm(s[1]));rfb.position.y=-0.17;rfb.castShadow=true;rFG.add(rfb);g.add(rFG);
-  zb(0.13,0.12,0.15,s[2],0.33,0.21,-0.06);
+  // Right arm — also hangs low, different angle
+  var rAG=new THREE.Group();
+  rAG.position.set( 0.28,0.68,0.04);
+  rAG.rotation.z=-0.28;
+  rAG.rotation.x=0.14;
+  g.add(rAG);
+  var ruArm=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.40,0.14),zm(cl[0]));
+  ruArm.position.y=-0.20;ruArm.castShadow=true;rAG.add(ruArm);
+  var ruSl=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.38,0.16),zm(cl[1]));ruSl.position.y=-0.19;rAG.add(ruSl);
+  var rss1=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.18,0.17),zm(cl[2]));rss1.position.set(-0.06,-0.32,0);rss1.rotation.z=-0.15;rAG.add(rss1);
+
+  var rFG=new THREE.Group();
+  rFG.position.set( 0.28,0.26,0.04);
+  rFG.rotation.z=-0.15;
+  rFG.rotation.x=0.20;
+  g.add(rFG);
+  var rfArm=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.36,0.12),zm(s[0]));
+  rfArm.position.y=-0.18;rfArm.castShadow=true;rFG.add(rfArm);
+  var rfSl=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.34,0.14),zm(cl[1]));rfSl.position.y=-0.17;rFG.add(rfSl);
+  var rfs1=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.22,0.15),zm(cl[2]));rfs1.position.set(-0.05,-0.28,0);rfs1.rotation.z=-0.2;rFG.add(rfs1);
+
+  var rHnd=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.09,0.12),zm(s[2]));
+  rHnd.position.set( 0.28,-0.06,0.12);rHnd.castShadow=true;g.add(rHnd);
   for(var fi=0;fi<4;fi++){
-    var fr2=new THREE.Mesh(new THREE.BoxGeometry(0.028,0.18,0.028),zm(s[3]));
-    fr2.position.set(0.25+fi*0.030,0.10,-0.10);fr2.rotation.x=0.70;g.add(fr2);
+    var rFin=new THREE.Mesh(new THREE.BoxGeometry(0.022,0.18,0.022),zm(s[3]));
+    rFin.position.set( 0.24+fi*0.026,-0.12,0.14);rFin.rotation.x=0.55;g.add(rFin);
+    var rClaw=new THREE.Mesh(new THREE.BoxGeometry(0.016,0.06,0.016),zm(s[4]));
+    rClaw.position.set( 0.24+fi*0.026,-0.22,0.16);rClaw.rotation.x=0.7;g.add(rClaw);
   }
-  zb(0.010,0.34,0.010,0xaa8060,0.39,0.59,0);
-  zb(0.010,0.34,0.010,0xaa8060,0.28,0.59,0);
+  var rtend1=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.30,0.008),zm(0xaa8850));rtend1.position.set( 0.32,-0.08,0.1);g.add(rtend1);
+  var rtend2=new THREE.Mesh(new THREE.BoxGeometry(0.008,0.28,0.008),zm(0xaa8850));rtend2.position.set( 0.24,-0.08,0.1);g.add(rtend2);
 
-  // ── NECK (broken, tilted) ─────────────────────────────
-  // Each zombie gets a unique random broken-neck tilt
-  var neckTiltZ=(Math.random()-0.5)*0.7;  // side tilt -35 to +35 deg
-  var neckTiltX=(Math.random()*0.4);       // forward slump
-  var headGroup=new THREE.Group();
-  headGroup.position.set(0,1.08,0);
-  headGroup.rotation.z=neckTiltZ;
-  headGroup.rotation.x=neckTiltX;
-  g.add(headGroup);
+  // ── NECK ─────────────────────────────────────────────
+  var neckG=new THREE.Group();
+  neckG.position.set(0,1.02,0.02);
+  // Broken neck tilt unique to each zombie
+  var neckTiltZ=(Math.random()-0.5)*0.65;
+  var neckTiltX=0.08+Math.random()*0.22;// slumped forward
+  neckG.rotation.z=neckTiltZ;
+  neckG.rotation.x=neckTiltX;
+  g.add(neckG);
 
-  // hb() = head box — adds to headGroup, NOT g
-  function hb(w,h,d,c,px,py,pz){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),zm(c));m.position.set(px,py,pz);m.castShadow=true;headGroup.add(m);return m;}
-
-  // Neck (stretched on tilt side)
-  var neckM=new THREE.Mesh(new THREE.CylinderGeometry(0.085,0.105,0.22,6),zm(s[0]));
-  neckM.position.y=0.0;neckM.castShadow=true;headGroup.add(neckM);
-  // Neck wound / tear
-  hb(0.08,0.06,0.22,0x8a0000,0,0.06,-0.11);// neck gash
-  // Exposed neck tendons
-  hb(0.012,0.20,0.012,0xaa8060,-0.06,0.06,0);
-  hb(0.012,0.20,0.012,0xaa8060, 0.06,0.06,0);
-  // Protruding neck vertebrae
-  for(var nv=0;nv<3;nv++){
-    hb(0.06,0.04,0.06,0xb0a888,0.09,nv*0.06-0.04,0.04);
+  function hb(w,h,d,c,px,py,pz){
+    var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),zm(c));
+    m.position.set(px,py,pz);m.castShadow=true;neckG.add(m);return m;
   }
 
-  // ── HEAD (scary, distorted face) ─────────────────────
-  var headOff=0.18;// head sits above neck group
-  var hdMain=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.40,0.36),zm(s[0]));
-  hdMain.position.set(0,headOff,0);hdMain.castShadow=true;headGroup.add(hdMain);
-  // Head is slightly squished/deformed
-  hdMain.scale.set(1.0,0.92,1.0);
+  var neck=new THREE.Mesh(new THREE.CylinderGeometry(0.078,0.095,0.20,6),zm(s[0]));
+  neck.castShadow=true;neckG.add(neck);
+  // Neck wound
+  hb(0.07,0.055,0.20,0x880000,0,0.05,-0.10);
+  // Neck tendons
+  hb(0.010,0.18,0.010,0xaa8850,-0.055,0.04,0);
+  hb(0.010,0.18,0.010,0xaa8850, 0.055,0.04,0);
+  // Vertebrae
+  for(var nv=0;nv<3;nv++){hb(0.055,0.04,0.055,0xb0a880,0.08,nv*0.055,-0.02);}
 
-  // Skull shape: forehead protrudes, cheeks sunken
-  var forehead=new THREE.Mesh(new THREE.BoxGeometry(0.36,0.16,0.32),zm(s[0]));
-  forehead.position.set(0,headOff+0.16,0.02);headGroup.add(forehead);
-  // Sunken cheeks (darker)
-  var chkL=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.14,0.30),zm(s[2]));
-  chkL.position.set(-0.17,headOff+0.02,-0.02);headGroup.add(chkL);
-  var chkR=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.14,0.30),zm(s[2]));
-  chkR.position.set( 0.17,headOff+0.02,-0.02);headGroup.add(chkR);
-  // Exposed skull patches (bone)
-  var skL=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.10,0.04),zm(0xc8c0a8));
-  skL.position.set(-0.10,headOff+0.22,-0.18);headGroup.add(skL);
-  var skR=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.08,0.04),zm(0xc0b8a0));
-  skR.position.set( 0.09,headOff+0.24,-0.16);headGroup.add(skR);
-  var skTop=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.04,0.18),zm(0xc8c0a8));
-  skTop.position.set(0.04,headOff+0.32,0.04);headGroup.add(skTop);
+  // ── HEAD ─────────────────────────────────────────────
+  var headOff=0.18;
+  var hdMain=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.37,0.33),zm(s[0]));
+  hdMain.position.set(0,headOff,0);hdMain.castShadow=true;neckG.add(hdMain);
+  if(type===2)hdMain.scale.set(1.25,1.25,1.25);
 
-  // Boss: bigger & more deformed
-  if(type===2) hdMain.scale.set(1.30,1.18,1.30);
+  // Skull shape — sunken cheeks, protruding forehead
+  hb(0.33,0.15,0.30,s[0],0,headOff+0.15,0.02);// forehead
+  hb(0.09,0.13,0.30,s[2],-0.16,headOff+0.02,-0.02);// sunken left cheek
+  hb(0.09,0.13,0.30,s[2], 0.16,headOff+0.02,-0.02);// sunken right cheek
+  // Exposed skull
+  hb(0.11,0.09,0.04,0xc0b888,-0.08,headOff+0.22,-0.17);
+  hb(0.09,0.07,0.04,0xb8b078, 0.07,headOff+0.24,-0.15);
+  // Protruding cheekbones
+  hb(0.06,0.05,0.30,0xb0a070,-0.17,headOff+0.04,-0.04);
+  hb(0.06,0.05,0.30,0xb0a070, 0.17,headOff+0.04,-0.04);
 
-  // ── EYES: deeply sunken, milky-white with red pupils ──
-  // Eye socket holes (very dark, deep)
-  var sockL=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.12,0.08),zm(0x080304));
-  sockL.position.set(-0.10,headOff+0.06,-0.19);headGroup.add(sockL);
-  var sockR=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.12,0.08),zm(0x080304));
-  sockR.position.set( 0.10,headOff+0.06,-0.19);headGroup.add(sockR);
+  // EYE SOCKETS — very deep like the image
+  hb(0.12,0.11,0.07,0x080304,-0.10,headOff+0.06,-0.17);
+  hb(0.12,0.11,0.07,0x080304, 0.10,headOff+0.06,-0.17);
 
-  // Eyeball — milky-white (clouded over from death)
-  var eyeWhiteM=new THREE.MeshBasicMaterial({color:0xd0c8b8});
-  var eyeRedM  =new THREE.MeshBasicMaterial({color:0xff0000});
-  var eyeBlkM  =new THREE.MeshBasicMaterial({color:0x1a0000});
-
-  var ewL=new THREE.Mesh(new THREE.SphereGeometry(0.050,5,5),eyeWhiteM);
-  ewL.position.set(-0.10,headOff+0.06,-0.19);headGroup.add(ewL);
-  var ewR=new THREE.Mesh(new THREE.SphereGeometry(0.050,5,5),eyeWhiteM);
-  ewR.position.set( 0.10,headOff+0.06,-0.19);headGroup.add(ewR);
-
-  // Iris — glowing red, slightly off-center (one eye looking sideways = more creepy)
-  var irL=new THREE.Mesh(new THREE.SphereGeometry(0.030,5,5),eyeRedM);
-  irL.position.set(-0.10+0.012,headOff+0.062,-0.225);headGroup.add(irL);
-  var irR=new THREE.Mesh(new THREE.SphereGeometry(0.030,5,5),eyeRedM);
-  irR.position.set( 0.10-0.014,headOff+0.058,-0.225);headGroup.add(irR);// offset = wall-eyed look
-
-  // Pupil (tiny dark center)
-  var puL=new THREE.Mesh(new THREE.SphereGeometry(0.016,4,4),eyeBlkM);
-  puL.position.set(-0.10+0.012,headOff+0.062,-0.240);headGroup.add(puL);
-  var puR=new THREE.Mesh(new THREE.SphereGeometry(0.016,4,4),eyeBlkM);
-  puR.position.set( 0.10-0.014,headOff+0.058,-0.240);headGroup.add(puR);
-
-  // Blood veins across the white of the eyes
-  var vnM=new THREE.MeshBasicMaterial({color:0xcc0000});
+  // Eyeballs — milky white with red iris (wall-eyed)
+  var ewM=new THREE.MeshBasicMaterial({color:0xd8d0b8});
+  var erM=new THREE.MeshBasicMaterial({color:0xcc0000});
+  var ebM=new THREE.MeshBasicMaterial({color:0x220000});
+  var ewL=new THREE.Mesh(new THREE.SphereGeometry(0.046,5,5),ewM);ewL.position.set(-0.10,headOff+0.06,-0.17);neckG.add(ewL);
+  var ewR=new THREE.Mesh(new THREE.SphereGeometry(0.046,5,5),ewM);ewR.position.set( 0.10,headOff+0.06,-0.17);neckG.add(ewR);
+  var irL=new THREE.Mesh(new THREE.SphereGeometry(0.028,5,5),erM);irL.position.set(-0.10+0.010,headOff+0.063,-0.212);neckG.add(irL);
+  var irR=new THREE.Mesh(new THREE.SphereGeometry(0.028,5,5),erM);irR.position.set( 0.10-0.012,headOff+0.058,-0.212);neckG.add(irR);
+  var puL=new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4),ebM);puL.position.set(-0.10+0.010,headOff+0.063,-0.228);neckG.add(puL);
+  var puR=new THREE.Mesh(new THREE.SphereGeometry(0.015,4,4),ebM);puR.position.set( 0.10-0.012,headOff+0.058,-0.228);neckG.add(puR);
+  // Bloodshot veins
+  var vnM=new THREE.MeshBasicMaterial({color:0xbb0000});
   for(var vi=0;vi<3;vi++){
-    var vnL=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.006,0.04),vnM);
-    vnL.position.set(-0.10+(vi-1)*0.016,headOff+0.065,-0.22);headGroup.add(vnL);
-    var vnR=new THREE.Mesh(new THREE.BoxGeometry(0.006,0.006,0.04),vnM);
-    vnR.position.set( 0.10+(vi-1)*0.016,headOff+0.060,-0.22);headGroup.add(vnR);
+    var vnL=new THREE.Mesh(new THREE.BoxGeometry(0.005,0.005,0.038),vnM);vnL.position.set(-0.10+(vi-1)*0.015,headOff+0.065,-0.210);neckG.add(vnL);
+    var vnR=new THREE.Mesh(new THREE.BoxGeometry(0.005,0.005,0.038),vnM);vnR.position.set( 0.10+(vi-1)*0.015,headOff+0.060,-0.210);neckG.add(vnR);
   }
+  // Black ooze from one eye
+  hb(0.014,0.055,0.020,0x080808,-0.10,headOff-0.012,-0.19);
+  // Eye glow
+  var eg=new THREE.PointLight(0xff0000,1.2,2.8);eg.position.set(0,headOff+0.06,-0.18);neckG.add(eg);
 
-  // One eye has black ooze leaking from it
-  var oozM=new THREE.MeshBasicMaterial({color:0x0a0808});
-  var ooz=new THREE.Mesh(new THREE.BoxGeometry(0.016,0.06,0.022),oozM);
-  ooz.position.set(-0.10,headOff-0.015,-0.20);headGroup.add(ooz);
-
-  // Eye glow (red, flickers in loop)
-  var eg=new THREE.PointLight(0xff0000,1.4,2.8);
-  eg.position.set(0,headOff+0.06,-0.20);headGroup.add(eg);
-
-  // ── NOSE (almost gone, just cavities) ─────────────────
-  var noseM=new THREE.Mesh(new THREE.BoxGeometry(0.09,0.07,0.05),zm(s[3]));
-  noseM.position.set(0,headOff-0.02,-0.20);headGroup.add(noseM);
+  // NOSE — mostly collapsed, dark holes
+  hb(0.08,0.065,0.048,s[3],0,headOff-0.018,-0.19);
   var nhM=new THREE.MeshBasicMaterial({color:0x050202});
-  var nh1=new THREE.Mesh(new THREE.CircleGeometry(0.022,6),nhM);
-  nh1.position.set(-0.030,headOff-0.016,-0.226);nh1.rotation.x=-0.25;headGroup.add(nh1);
-  var nh2=new THREE.Mesh(new THREE.CircleGeometry(0.022,6),nhM);
-  nh2.position.set( 0.030,headOff-0.016,-0.226);nh2.rotation.x=-0.25;headGroup.add(nh2);
-  // Bridge of nose has exposed bone
-  var nBone=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.06,0.03),zm(0xc0b8a0));
-  nBone.position.set(0,headOff+0.04,-0.21);headGroup.add(nBone);
+  var nh1=new THREE.Mesh(new THREE.CircleGeometry(0.020,6),nhM);nh1.position.set(-0.028,headOff-0.014,-0.216);nh1.rotation.x=-0.25;neckG.add(nh1);
+  var nh2=new THREE.Mesh(new THREE.CircleGeometry(0.020,6),nhM);nh2.position.set( 0.028,headOff-0.014,-0.216);nh2.rotation.x=-0.25;neckG.add(nh2);
+  hb(0.035,0.055,0.028,0xc0b888,0,headOff+0.038,-0.20);// exposed nose bone
 
-  // ── JAW (broken, hanging extreme angle) ───────────────
+  // JAW — hanging open, extreme angle, like the image
   var jawGrp=new THREE.Group();
   jawGrp.position.set(0,headOff-0.10,-0.02);
-  // Jaw drops further on broken side
-  jawGrp.rotation.x=0.55+Math.random()*0.25;// 31-46 degrees open
-  jawGrp.rotation.z=neckTiltZ*0.4;// jaw tilts same direction as neck
+  jawGrp.rotation.x=0.58+Math.random()*0.22;
+  jawGrp.rotation.z=neckTiltZ*0.35;
+  neckG.add(jawGrp);
 
-  var jawBone=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.14,0.26),zm(s[2]));
-  jawBone.position.y=-0.06;jawGrp.add(jawBone);
-  // Jaw skin is mostly gone, bone showing
-  var jawBoneExpose=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.06,0.22),zm(0xc0b8a0));
-  jawBoneExpose.position.set(0,-0.04,-0.01);jawGrp.add(jawBoneExpose);
-
-  // Lower teeth — broken, stained brown-black
-  var toothCols=[0xc8b060,0xb0982a,0xd0c070,0xa08020,0xc0a840,0xa08828];
+  var jawBone=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.13,0.24),zm(s[2]));jawBone.position.y=-0.055;jawGrp.add(jawBone);
+  var jawExpose=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.055,0.20),zm(0xc0b888));jawExpose.position.set(0,-0.038,-0.01);jawGrp.add(jawExpose);
+  // Broken stained teeth
+  var tcs=[0xc8b050,0xb09828,0xd0c068,0xa08820,0xb8a038,0xc0a848];
   for(var ti=0;ti<6;ti++){
-    var h2=0.06+Math.random()*0.06;// random tooth heights (broken)
-    var tth=new THREE.Mesh(new THREE.BoxGeometry(0.046,h2,0.038),zm(toothCols[ti]));
-    tth.position.set(-0.11+ti*0.046,-0.012,-0.13);
-    // Some teeth angled (cracked)
-    tth.rotation.z=(Math.random()-0.5)*0.3;
-    tth.rotation.x=(Math.random()-0.5)*0.2;
-    jawGrp.add(tth);
+    var th2=0.055+Math.random()*0.055;
+    var tt=new THREE.Mesh(new THREE.BoxGeometry(0.044,th2,0.036),zm(tcs[ti]));
+    tt.position.set(-0.105+ti*0.044,-0.010,-0.12);
+    tt.rotation.z=(Math.random()-0.5)*0.28;tt.rotation.x=(Math.random()-0.5)*0.18;
+    jawGrp.add(tt);
   }
-  // Missing tooth gap (dark hole)
-  var gap=new THREE.Mesh(new THREE.BoxGeometry(0.052,0.04,0.04),zm(0x060402));
-  gap.position.set(-0.018,-0.012,-0.13);jawGrp.add(gap);
-  // Black-red gum line
-  var gumL=new THREE.Mesh(new THREE.BoxGeometry(0.32,0.028,0.05),zm(0x6a1010));
-  gumL.position.set(0,-0.002,-0.13);jawGrp.add(gumL);
-  // Tongue — swollen, blackened, lolling out
-  var tongueGrp=new THREE.Group();
-  tongueGrp.position.set(0,-0.02,-0.14);
-  var tongBody=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.05,0.18),zm(0x6a1020));
-  tongBody.position.z=0.05;tongueGrp.add(tongBody);
-  var tongTip=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.04,0.08),zm(0x580e1a));
-  tongTip.position.set(0,-0.005,0.15);tongueGrp.add(tongTip);
-  // Tongue lolls to broken side
-  tongueGrp.rotation.z=neckTiltZ*0.5;
-  jawGrp.add(tongueGrp);
-  // Drool / black ooze from jaw
-  var droolM=zm(0x2a0a0a);
-  var drool1=new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.004,0.08,4),droolM);
-  drool1.position.set(0.04,-0.11,-0.12);jawGrp.add(drool1);
-  var drool2=new THREE.Mesh(new THREE.CylinderGeometry(0.006,0.003,0.06,4),droolM);
-  drool2.position.set(-0.06,-0.10,-0.10);jawGrp.add(drool2);
-  headGroup.add(jawGrp);
+  // Dark gap (missing tooth)
+  var gap=new THREE.Mesh(new THREE.BoxGeometry(0.048,0.038,0.038),zm(0x060402));gap.position.set(-0.016,-0.010,-0.12);jawGrp.add(gap);
+  // Gum
+  var gumL=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.026,0.048),zm(0x601010));gumL.position.set(0,-0.002,-0.12);jawGrp.add(gumL);
+  // Swollen blackened tongue lolling out
+  var tongGrp=new THREE.Group();tongGrp.position.set(0,-0.018,-0.13);
+  var tongB=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.048,0.16),zm(0x601020));tongB.position.z=0.05;tongGrp.add(tongB);
+  var tongT=new THREE.Mesh(new THREE.BoxGeometry(0.09,0.038,0.07),zm(0x500e18));tongT.position.set(0,-0.004,0.14);tongGrp.add(tongT);
+  tongGrp.rotation.z=neckTiltZ*0.45;jawGrp.add(tongGrp);
+  // Drool/ooze
+  var droolM=zm(0x240808);
+  var dr1=new THREE.Mesh(new THREE.CylinderGeometry(0.007,0.003,0.075,4),droolM);dr1.position.set(0.038,-0.10,-0.11);jawGrp.add(dr1);
+  var dr2=new THREE.Mesh(new THREE.CylinderGeometry(0.005,0.002,0.055,4),droolM);dr2.position.set(-0.055,-0.095,-0.09);jawGrp.add(dr2);
 
-  // Upper teeth (fixed, in skull)
-  var utCols=[0xc0a850,0xb09028,0xc8b060,0xa88020,0xb8a040,0xc0a848];
+  // UPPER TEETH
+  var utcs=[0xc0a848,0xb09028,0xc8b058,0xa08020,0xb8a038,0xc0a848];
   for(var ti=0;ti<6;ti++){
-    var uh=0.05+Math.random()*0.05;
-    var utt=new THREE.Mesh(new THREE.BoxGeometry(0.046,uh,0.040),zm(utCols[ti]));
-    utt.position.set(-0.112+ti*0.048,headOff-0.085,-0.19);
-    utt.rotation.z=(Math.random()-0.5)*0.25;
-    headGroup.add(utt);
+    var uh=0.048+Math.random()*0.045;
+    var utt=new THREE.Mesh(new THREE.BoxGeometry(0.044,uh,0.038),zm(utcs[ti]));
+    utt.position.set(-0.108+ti*0.046,headOff-0.083,-0.18);
+    utt.rotation.z=(Math.random()-0.5)*0.22;neckG.add(utt);
   }
-  // Upper gum
-  var ugum=new THREE.Mesh(new THREE.BoxGeometry(0.30,0.030,0.06),zm(0x5a0e0e));
-  ugum.position.set(0,headOff-0.075,-0.19);headGroup.add(ugum);
+  var ugum=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.028,0.058),zm(0x580e0e));ugum.position.set(0,headOff-0.073,-0.18);neckG.add(ugum);
 
-  // ── FACE WOUNDS ───────────────────────────────────────
-  // Deep cheek gash (right side)
-  var gash1=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.06,0.06),zm(0x8a0000));
-  gash1.position.set(0.12,headOff+0.04,-0.20);gash1.rotation.z=0.3;headGroup.add(gash1);
-  var gash1i=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.03,0.06),zm(0x5a0000));
-  gash1i.position.set(0.12,headOff+0.04,-0.21);gash1i.rotation.z=0.3;headGroup.add(gash1i);
-  // Forehead crack
-  var fcrack=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.12,0.04),zm(0x6a0000));
-  fcrack.position.set(-0.04,headOff+0.20,-0.19);fcrack.rotation.z=0.15;headGroup.add(fcrack);
-  // Bullet hole / cave-in on skull (type 1+)
+  // FACE WOUNDS
+  hb(0.13,0.058,0.055,0x880000, 0.11,headOff+0.038,-0.19);// cheek gash right
+  hb(0.09,0.050,0.055,0x660000,-0.08,headOff+0.022,-0.19);
+  hb(0.028,0.11,0.038,0x5a0000,-0.02,headOff+0.20,-0.18);// forehead crack
+  hb(0.11,0.042,0.040,0x1e0808,-0.10,headOff+0.014,-0.19);// dark rot under eyes
+  hb(0.11,0.042,0.040,0x1e0808, 0.10,headOff+0.012,-0.19);
+  // Bullet hole on skull (type 1+)
   if(type>0){
-    var caveIn=new THREE.Mesh(new THREE.SphereGeometry(0.055,6,6),zm(0x1a0a0a));
-    caveIn.position.set(0.12,headOff+0.26,0.10);caveIn.scale.set(1,0.5,1);headGroup.add(caveIn);
-    var caveRim=new THREE.Mesh(new THREE.TorusGeometry(0.056,0.018,5,10),zm(0xc0b8a0));
-    caveRim.position.set(0.12,headOff+0.26,0.10);caveRim.rotation.x=Math.PI/2;headGroup.add(caveRim);
+    var caveIn=new THREE.Mesh(new THREE.SphereGeometry(0.052,6,6),zm(0x180808));
+    caveIn.position.set(0.11,headOff+0.26,0.09);caveIn.scale.set(1,0.5,1);neckG.add(caveIn);
   }
-  // Dark under-eye rot
-  var rotL=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.05,0.04),zm(0x1e0808));
-  rotL.position.set(-0.10,headOff+0.012,-0.20);headGroup.add(rotL);
-  var rotR=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.05,0.04),zm(0x1e0808));
-  rotR.position.set( 0.10,headOff+0.010,-0.20);headGroup.add(rotR);
 
-  // ── HAIR (patchy, clumped, falling out) ───────────────
-  var hairMain=new THREE.Mesh(new THREE.BoxGeometry(0.40,0.14,0.38),zm(0x181006));
-  hairMain.position.set(0,headOff+0.30,0);headGroup.add(hairMain);
-  // Clumps
-  var hclp1=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.18,0.14),zm(0x1a1008));
-  hclp1.position.set(-0.12,headOff+0.30,0.19);headGroup.add(hclp1);
-  var hclp2=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.16,0.12),zm(0x141008));
-  hclp2.position.set( 0.13,headOff+0.28,0.18);headGroup.add(hclp2);
-  // Bald patches (exposed grey skin)
-  var baldL=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.025,0.16),zm(s[1]));
-  baldL.position.set( 0.05,headOff+0.33,-0.04);headGroup.add(baldL);
-  var baldR=new THREE.Mesh(new THREE.BoxGeometry(0.10,0.025,0.12),zm(s[1]));
-  baldR.position.set(-0.06,headOff+0.33, 0.08);headGroup.add(baldR);
-  // Hanging clumps of dead hair
-  var hng1=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.24,0.065),zm(0x12100a));
-  hng1.position.set(-0.18,headOff+0.14,0.14);headGroup.add(hng1);
-  var hng2=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.20,0.055),zm(0x12100a));
-  hng2.position.set( 0.15,headOff+0.13,0.12);headGroup.add(hng2);
+  // HAIR — matted, patchy, dark
+  hb(0.37,0.13,0.36,0x181006,0,headOff+0.28,0);
+  hb(0.19,0.16,0.13,0x181008,-0.11,headOff+0.28,0.18);
+  hb(0.14,0.14,0.11,0x141006, 0.12,headOff+0.26,0.17);
+  // Bald patches
+  hb(0.13,0.022,0.15,s[1], 0.04,headOff+0.31,-0.04);
+  hb(0.10,0.022,0.11,s[1],-0.06,headOff+0.31, 0.07);
+  // Hanging hair clumps
+  hb(0.065,0.21,0.060,0x121008,-0.17,headOff+0.13,0.13);
+  hb(0.055,0.18,0.052,0x121008, 0.14,headOff+0.12,0.11);
 
-  // ── BOSS EXTRAS ───────────────────────────────────────
+  // BOSS EXTRAS
   if(type===2){
-    for(var spi2=0;spi2<8;spi2++){
-      var sp=new THREE.Mesh(new THREE.ConeGeometry(0.080,0.62,4),zm(0x1a0808));
-      sp.position.set((spi2-3.5)*0.21,headOff+0.50,0);headGroup.add(sp);
+    for(var sp=0;sp<8;sp++){
+      var spM=new THREE.Mesh(new THREE.ConeGeometry(0.072,0.56,4),zm(0x1a0808));
+      spM.position.set((sp-3.5)*0.20,headOff+0.48,0);neckG.add(spM);
     }
-    // Extra skull exposure
-    var skBoss=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.12,0.05),zm(0xc8c0a8));
-    skBoss.position.set(-0.08,headOff+0.36,-0.19);headGroup.add(skBoss);
+    hb(0.16,0.11,0.046,0xc0b888,-0.11,headOff+0.34,-0.17);
+    hb(0.13,0.09,0.046,0xb8b080, 0.09,headOff+0.36,-0.15);
   }
 
-  // ── HP BAR ────────────────────────────────────────────
-  var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.84,0.15,1,1),
-    new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
-  hpBg.position.set(0,2.20,0);hpBg.renderOrder=1;g.add(hpBg);
-  var hpBar=new THREE.Mesh(new THREE.PlaneGeometry(0.80,0.12,1,1),
-    new THREE.MeshBasicMaterial({color:0x22ff22,side:THREE.DoubleSide,depthTest:false}));
-  hpBar.position.set(0,2.20,0.002);hpBar.renderOrder=2;g.add(hpBar);
+  // HP BAR
+  var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.84,0.14,1,1),new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
+  hpBg.position.set(0,2.12,0);hpBg.renderOrder=1;g.add(hpBg);
+  var hpBar=new THREE.Mesh(new THREE.PlaneGeometry(0.80,0.11,1,1),new THREE.MeshBasicMaterial({color:0x22ff22,side:THREE.DoubleSide,depthTest:false}));
+  hpBar.position.set(0,2.12,0.002);hpBar.renderOrder=2;g.add(hpBar);
 
   g._hpBar=hpBar;
   g._lTG=lTG;g._rTG=rTG;g._lSG=lSG;g._rSG=rSG;
   g._lAG=lAG;g._rAG=rAG;g._lFG=lFG;g._rFG=rFG;
-  g._hd=hdMain;g._headGroup=headGroup;g._neckTiltZ=neckTiltZ;
+  g._hd=hdMain;g._headGroup=neckG;g._neckTiltZ=neckTiltZ;
   g._type=type;g._maxHp=200*(type+1);g._hp=g._maxHp;
   g._spd=[0.042,0.030,0.018][Math.min(type,2)];
   g._wk=Math.random()*6.28;g._atkT=0;g._dead=false;g._dT=0;
   g._gT=Math.floor(Math.random()*140+70);
   return g;
 }
+
 
 // ── EFFECTS ────────────────────────────────────────────
 var ENM=[],SPL=[],SHL=[],PKU=[];
