@@ -292,7 +292,7 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 <!-- Logged-in bar (shows during game) -->
 <div id="loggedInBar">
   <span id="loggedInName" style="color:#00ff88;font-size:11px;font-weight:700;letter-spacing:2px;">👤 PLAYER</span>
-  <button onclick="showExportCode()" style="background:transparent;border:1px solid rgba(0,255,136,0.35);color:rgba(0,255,136,0.8);font-size:10px;padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;margin-right:6px;">📱 USE ON PHONE</button><button id="logoutBtn">LOG OUT</button>
+  <button id="mobileToggleBtn" onclick="toggleMobileControls()" style="background:transparent;border:1px solid rgba(0,255,136,0.35);color:rgba(0,255,136,0.8);font-size:10px;padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'Segoe UI',sans-serif;letter-spacing:1px;margin-right:6px;">📱 MOBILE MODE: OFF</button><button id="logoutBtn">LOG OUT</button>
 </div>
 
 
@@ -3091,6 +3091,28 @@ document.getElementById('settingsBtn') && document.getElementById('settingsBtn')
     }
   }, 200);
 });
+
+
+// ── MOBILE MODE TOGGLE ─────────────────────────────────
+var mobileModeOn = false;
+function toggleMobileControls(){
+  mobileModeOn = !mobileModeOn;
+  var btn = document.getElementById('mobileToggleBtn');
+  var mc  = document.getElementById('mobileControls');
+  if(mobileModeOn){
+    // Turn ON mobile controls
+    if(mc) mc.style.display = 'block';
+    if(btn){ btn.textContent = '📱 MOBILE MODE: ON'; btn.style.borderColor='rgba(0,255,136,0.8)'; btn.style.color='#00ff88'; btn.style.background='rgba(0,255,136,0.1)'; }
+    // Init joystick if not already done
+    if(!window._mobileInited){ initMobileControls(); window._mobileInited=true; }
+    showWM && G.on && showWM('📱 Mobile Controls ON!');
+  } else {
+    // Turn OFF mobile controls
+    if(mc) mc.style.display = 'none';
+    if(btn){ btn.textContent = '📱 MOBILE MODE: OFF'; btn.style.borderColor='rgba(0,255,136,0.35)'; btn.style.color='rgba(0,255,136,0.8)'; btn.style.background='transparent'; }
+    showWM && G.on && showWM('Mobile Controls OFF');
+  }
+}
 
 </script>
 </body>
