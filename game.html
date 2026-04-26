@@ -2,6 +2,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Daksh Zombie Apocalypse</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -79,6 +83,33 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 #sCHpreview{width:80px;height:80px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:4px;display:flex;align-items:center;justify-content:center;}
 #closeSettings{margin-top:4px;padding:10px 40px;background:transparent;border:1px solid rgba(0,255,136,0.3);color:#00ff88;font-size:12px;font-weight:700;letter-spacing:3px;cursor:pointer;border-radius:4px;font-family:'Segoe UI',sans-serif;}
 #closeSettings:hover{background:rgba(0,255,136,0.1);}
+
+/* ── MOBILE CONTROLS ── */
+#mobileControls{position:fixed;inset:0;z-index:200;pointer-events:none;display:none;}
+
+/* Joystick */
+#joystickZone{position:fixed;bottom:30px;left:30px;width:130px;height:130px;pointer-events:all;}
+#joystickBase{position:absolute;inset:0;background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.2);border-radius:50%;}
+#joystickKnob{position:absolute;width:52px;height:52px;background:rgba(255,255,255,0.35);border:2px solid rgba(255,255,255,0.6);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);transition:none;}
+
+/* Look zone (right side of screen) */
+#lookZone{position:fixed;right:0;top:0;width:55%;height:100%;pointer-events:all;z-index:201;}
+
+/* Action buttons */
+#btnShoot{position:fixed;bottom:80px;right:32px;width:72px;height:72px;background:rgba(255,50,50,0.7);border:3px solid rgba(255,100,100,0.9);border-radius:50%;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 0 20px rgba(255,0,0,0.4);}
+#btnJump{position:fixed;bottom:165px;right:32px;width:56px;height:56px;background:rgba(0,200,255,0.5);border:2px solid rgba(0,220,255,0.8);border-radius:50%;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:22px;}
+#btnReload{position:fixed;bottom:165px;right:105px;width:52px;height:52px;background:rgba(255,200,0,0.5);border:2px solid rgba(255,220,0,0.8);border-radius:50%;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:20px;}
+#btnScope{position:fixed;bottom:80px;right:120px;width:52px;height:52px;background:rgba(100,100,255,0.5);border:2px solid rgba(130,130,255,0.8);border-radius:50%;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:20px;}
+#btnKnife{position:fixed;bottom:250px;right:32px;width:50px;height:50px;background:rgba(200,100,0,0.5);border:2px solid rgba(220,130,0,0.8);border-radius:50%;pointer-events:all;display:flex;align-items:center;justify-content:center;font-size:20px;}
+
+/* Weapon switcher */
+#weaponSwitcher{position:fixed;top:50%;right:8px;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;pointer-events:all;}
+.wBtn{width:44px;height:44px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.2);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;pointer-events:all;}
+.wBtn.active{border-color:#00ff88;background:rgba(0,255,136,0.15);}
+
+/* Active press effect */
+#btnShoot:active,#btnJump:active,#btnReload:active,#btnScope:active,#btnKnife:active{filter:brightness(1.5);transform:scale(0.92);}
+.wBtn:active{border-color:#00ff88;}
 </style>
 </head>
 <body>
@@ -129,6 +160,34 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
   </div>
 </div>
 <div id="knifeHint" style="position:fixed;top:54%;left:50%;transform:translateX(-50%);z-index:36;color:#ff4400;font-size:14px;font-weight:700;letter-spacing:3px;opacity:0;transition:opacity 0.2s;pointer-events:none;text-shadow:0 0 10px #ff4400;">🔪 CLICK TO STAB</div>
+
+<!-- MOBILE CONTROLS -->
+<div id="mobileControls">
+  <!-- Left: Joystick -->
+  <div id="joystickZone">
+    <div id="joystickBase"></div>
+    <div id="joystickKnob"></div>
+  </div>
+
+  <!-- Right: Look zone (touch to look) -->
+  <div id="lookZone"></div>
+
+  <!-- Action buttons -->
+  <div id="btnShoot">🔫</div>
+  <div id="btnJump">⬆️</div>
+  <div id="btnReload">🔄</div>
+  <div id="btnScope">🔭</div>
+  <div id="btnKnife">🔪</div>
+
+  <!-- Weapon switcher -->
+  <div id="weaponSwitcher">
+    <div class="wBtn active" data-w="0">🔫</div>
+    <div class="wBtn" data-w="1">🏹</div>
+    <div class="wBtn" data-w="2">🔪</div>
+    <div class="wBtn" data-w="3">🎯</div>
+  </div>
+</div>
+
 <div id="bo"></div><div id="wm"></div><div id="bsm">⚡ BACKSTAB ⚡</div>
 
 <!-- AUTH SCREEN -->
@@ -2302,6 +2361,213 @@ loop();
     if(el) el.onclick = (function(act){ return function(){ adminAction(act); }; })(a);
   });
 })();
+
+
+// ── MOBILE CONTROLS ────────────────────────────────────
+var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 900;
+
+function initMobileControls() {
+  if (!isMobile) return;
+  document.getElementById('mobileControls').style.display = 'block';
+  // Hide keyboard hint
+  var hint = document.querySelector('[style*="WASD"]');
+
+  // ── JOYSTICK ──────────────────────────────────────────
+  var jZone  = document.getElementById('joystickZone');
+  var jKnob  = document.getElementById('joystickKnob');
+  var jActive = false;
+  var jStart  = {x:0,y:0};
+  var jDelta  = {x:0,y:0};
+  var JR = 52; // max radius
+
+  jZone.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    jActive = true;
+    var t = e.touches[0];
+    var r = jZone.getBoundingClientRect();
+    jStart.x = r.left + r.width/2;
+    jStart.y = r.top  + r.height/2;
+    updateJoystick(t.clientX, t.clientY);
+  },{passive:false});
+
+  jZone.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    if(!jActive) return;
+    updateJoystick(e.touches[0].clientX, e.touches[0].clientY);
+  },{passive:false});
+
+  jZone.addEventListener('touchend', function(e){
+    e.preventDefault();
+    jActive = false;
+    jDelta = {x:0,y:0};
+    jKnob.style.transform = 'translate(-50%,-50%)';
+  },{passive:false});
+
+  function updateJoystick(cx, cy){
+    var dx = cx - jStart.x;
+    var dy = cy - jStart.y;
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist > JR){ dx = dx/dist*JR; dy = dy/dist*JR; }
+    jDelta.x = dx/JR;
+    jDelta.y = dy/JR;
+    jKnob.style.transform = 'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+  }
+
+  // Inject joystick into game loop
+  var _origGetKeys = null;
+  var joyInterval = setInterval(function(){
+    if(!G || !G.on) return;
+    // Override keys with joystick delta
+    G.keys['KeyW'] = jDelta.y < -0.2;
+    G.keys['KeyS'] = jDelta.y >  0.2;
+    G.keys['KeyA'] = jDelta.x < -0.2;
+    G.keys['KeyD'] = jDelta.x >  0.2;
+  }, 16);
+
+  // ── LOOK ZONE (gyro-style touch drag) ─────────────────
+  var lZone = document.getElementById('lookZone');
+  var lLast = null;
+  var LOOK_SENS = 0.005;
+
+  lZone.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    lLast = {x: e.touches[0].clientX, y: e.touches[0].clientY};
+  },{passive:false});
+
+  lZone.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    if(!lLast || !G.on) return;
+    var t = e.touches[0];
+    var dx = t.clientX - lLast.x;
+    var dy = t.clientY - lLast.y;
+    yaw   -= dx * LOOK_SENS;
+    pitch -= dy * LOOK_SENS;
+    pitch = Math.max(-Math.PI*0.28, Math.min(Math.PI*0.2, pitch));
+    lLast = {x: t.clientX, y: t.clientY};
+  },{passive:false});
+
+  lZone.addEventListener('touchend', function(e){
+    e.preventDefault();
+    lLast = null;
+  },{passive:false});
+
+  // ── SHOOT BUTTON ──────────────────────────────────────
+  document.getElementById('btnShoot').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(G.on) doAtk();
+  },{passive:false});
+
+  // Auto-fire while holding shoot
+  var shootHold = null;
+  document.getElementById('btnShoot').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(G.on){ doAtk(); shootHold = setInterval(function(){ if(G.on) doAtk(); }, 120); }
+  },{passive:false});
+  document.getElementById('btnShoot').addEventListener('touchend', function(e){
+    e.preventDefault();
+    clearInterval(shootHold);
+  },{passive:false});
+
+  // ── JUMP BUTTON ───────────────────────────────────────
+  document.getElementById('btnJump').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(G.on && isGrounded){ velY=JUMP_FORCE; isGrounded=false; }
+  },{passive:false});
+
+  // ── RELOAD BUTTON ─────────────────────────────────────
+  document.getElementById('btnReload').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(G.on) doRld();
+  },{passive:false});
+
+  // ── SCOPE BUTTON ──────────────────────────────────────
+  document.getElementById('btnScope').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(!G.on) return;
+    if(cwi===0||cwi===1||cwi===3){
+      scopeOn=!scopeOn;
+      if(scopeOn){drawScope(cwi===0?'ak':'sniper');document.getElementById('scope').style.display='block';cam.fov=(cwi===0)?45:(SETTINGS.scopeFov||18);}
+      else{document.getElementById('scope').style.display='none';cam.fov=SETTINGS.fov||75;}
+      cam.updateProjectionMatrix();
+    }
+  },{passive:false});
+
+  // ── KNIFE / MELEE BUTTON ──────────────────────────────
+  document.getElementById('btnKnife').addEventListener('touchstart', function(e){
+    e.preventDefault();
+    if(G.on){ switchW(2); doAtk(); }
+  },{passive:false});
+
+  // ── WEAPON SWITCHER ───────────────────────────────────
+  document.querySelectorAll('.wBtn').forEach(function(btn){
+    btn.addEventListener('touchstart', function(e){
+      e.preventDefault();
+      var w = parseInt(btn.getAttribute('data-w'));
+      switchW(w);
+      document.querySelectorAll('.wBtn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    },{passive:false});
+  });
+
+  // Update weapon switcher when weapon changes
+  var _origSwitchW = switchW;
+  switchW = function(i){
+    _origSwitchW(i);
+    document.querySelectorAll('.wBtn').forEach(function(b){
+      b.classList.toggle('active', parseInt(b.getAttribute('data-w'))===i);
+    });
+  };
+
+  // ── PREVENT DEFAULT TOUCH on game canvas ──────────────
+  document.getElementById('gc').addEventListener('touchstart',function(e){e.preventDefault();},{passive:false});
+  document.getElementById('gc').addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
+
+  // ── START GAME ON MOBILE (no pointer lock needed) ─────
+  // Override startGame to skip pointer lock on mobile
+  var _origStart = startGame;
+  startGame = function(){
+    _origStart();
+    // Mobile doesn't use pointer lock
+    if(isMobile && document.pointerLockElement){
+      document.exitPointerLock();
+    }
+    document.body.style.cursor = 'none';
+  };
+
+  // Override mousemove — not needed on mobile (we use lookZone)
+  // But keep it for if someone uses a mouse on tablet
+
+  console.log('Mobile controls initialized');
+}
+
+// Auto-show play button on mobile for start screen
+if(isMobile){
+  // Make start screen touch-friendly
+  document.addEventListener('DOMContentLoaded', function(){
+    var ss = document.getElementById('ss');
+    if(ss) ss.style.cursor = 'pointer';
+  });
+}
+
+// Init when DOM ready
+window.addEventListener('load', function(){
+  initMobileControls();
+  // Resize handler for mobile
+  window.addEventListener('resize', function(){
+    isMobile = window.innerWidth < 900;
+    var mc = document.getElementById('mobileControls');
+    if(mc) mc.style.display = (isMobile && G && G.on) ? 'block' : (isMobile ? 'block' : 'none');
+  });
+  // Show/hide controls based on game state
+  var _checkState = setInterval(function(){
+    var mc = document.getElementById('mobileControls');
+    if(!mc) return;
+    if(isMobile){
+      var authVisible = document.getElementById('authScreen').style.display !== 'none';
+      mc.style.display = (authVisible || !G || !G.on) ? 'none' : 'block';
+    }
+  }, 500);
+});
 
 </script>
 </body>
