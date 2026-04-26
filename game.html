@@ -125,6 +125,30 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
 }
 .chColorBtn:hover{transform:scale(1.2);border-color:rgba(255,255,255,0.6);}
 .chColorBtn.active{border-color:#fff;box-shadow:0 0 8px rgba(255,255,255,0.5);transform:scale(1.15);}
+
+/* SHOP */
+#shopBtn{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:180;background:linear-gradient(135deg,#ffcc00,#ff8800);color:#000;border:none;border-radius:6px;padding:10px 28px;font-size:13px;font-weight:900;letter-spacing:3px;cursor:pointer;display:none;font-family:'Segoe UI',sans-serif;box-shadow:0 0 20px rgba(255,180,0,0.5);}
+#shopBtn:hover{background:linear-gradient(135deg,#ffdd22,#ffaa00);}
+#shopPanel{position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;}
+#shopPanel h2{color:#ffcc00;font-size:18px;letter-spacing:5px;margin-bottom:6px;font-family:'Segoe UI',sans-serif;font-weight:900;}
+#shopCoins{color:#fff;font-size:13px;letter-spacing:2px;margin-bottom:24px;font-family:'Segoe UI',sans-serif;}
+.shopGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;max-width:520px;width:90vw;}
+.shopCard{background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:10px;padding:20px;text-align:center;transition:all 0.2s;position:relative;}
+.shopCard.owned{border-color:rgba(0,255,136,0.6);background:rgba(0,255,136,0.08);}
+.shopCard.locked{border-color:rgba(255,255,255,0.08);opacity:0.7;}
+.shopIcon{font-size:36px;margin-bottom:8px;}
+.shopName{color:#fff;font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:4px;font-family:'Segoe UI',sans-serif;}
+.shopDesc{color:rgba(255,255,255,0.4);font-size:10px;margin-bottom:12px;font-family:'Segoe UI',sans-serif;line-height:1.5;}
+.shopPrice{font-size:12px;font-weight:700;letter-spacing:1px;font-family:'Segoe UI',sans-serif;}
+.shopBuyBtn{width:100%;padding:9px;border:none;border-radius:5px;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;margin-top:8px;font-family:'Segoe UI',sans-serif;transition:all 0.15s;}
+.shopBuyBtn.buy{background:#ffcc00;color:#000;}
+.shopBuyBtn.buy:hover{background:#ffdd22;}
+.shopBuyBtn.owned{background:rgba(0,255,136,0.2);color:#00ff88;cursor:default;}
+.shopBuyBtn.cantafford{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.3);cursor:not-allowed;}
+.shopOwnedBadge{position:absolute;top:8px;right:8px;background:#00ff88;color:#000;font-size:9px;font-weight:900;padding:2px 7px;border-radius:10px;letter-spacing:1px;font-family:'Segoe UI',sans-serif;}
+#shopClose{margin-top:20px;padding:10px 40px;background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:3px;cursor:pointer;border-radius:5px;font-family:'Segoe UI',sans-serif;}
+#shopClose:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
+#coinDisplay{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:180;background:rgba(0,0,0,0.6);border:1px solid rgba(255,204,0,0.3);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;color:#ffcc00;display:none;font-family:'Segoe UI',sans-serif;letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -201,6 +225,21 @@ body{background:#000;overflow:hidden;font-family:'Segoe UI',sans-serif;}
     <div class="wBtn" data-w="2">🔪</div>
     <div class="wBtn" data-w="3">🎯</div>
   </div>
+</div>
+
+
+<!-- COIN DISPLAY (during game) -->
+<div id="coinDisplay">🪙 <span id="coinCount">0</span></div>
+
+<!-- SHOP BUTTON (home screen) -->
+<button id="shopBtn" onclick="openShop()">🛒 &nbsp;WEAPON SHOP</button>
+
+<!-- SHOP PANEL -->
+<div id="shopPanel">
+  <h2>🛒 WEAPON SHOP</h2>
+  <div id="shopCoins">🪙 <span id="shopCoinVal">0</span> COINS &nbsp;·&nbsp; Earned by killing zombies</div>
+  <div class="shopGrid" id="shopGrid"></div>
+  <button id="shopClose" onclick="closeShop()">✕ &nbsp;CLOSE</button>
 </div>
 
 <div id="bo"></div><div id="wm"></div><div id="bsm">⚡ BACKSTAB ⚡</div>
@@ -906,6 +945,144 @@ function applyBrightness(){
   if(gc) gc.style.filter='brightness('+Math.min(b/1.5,2.0)+')';
 }
 
+
+// ── WEAPON SHOP SYSTEM ─────────────────────────────────
+var SHOP_WEAPONS = [
+  { id:0, name:'AK-47',    icon:'🔫', price:0,   desc:'30 rounds\nFast fire rate\nHeadshot: 25-40 dmg',   key:'[1]' },
+  { id:1, name:'CROSSBOW', icon:'🏹', price:50,  desc:'6 bolts\nHigh damage\nHeadshot: 80-120 dmg',      key:'[2]' },
+  { id:2, name:'KNIFE',    icon:'🔪', price:70,  desc:'Unlimited\nMelee only\nBackstab = instant kill!',  key:'[3]' },
+  { id:3, name:'SNIPER',   icon:'🎯', price:100, desc:'5 rounds\nHeadshot = INSTANT KILL\nBody: 120-200', key:'[4]' },
+];
+
+// Which weapons player owns (persisted per account)
+var ownedWeapons = [0]; // everyone starts with AK-47
+
+function getShopKey(){
+  return 'dza_shop_' + (currentUser ? currentUser.toLowerCase() : 'guest');
+}
+function loadShopData(){
+  try{
+    var d = JSON.parse(localStorage.getItem(getShopKey()) || '{}');
+    ownedWeapons = d.owned || [0];
+    G.coins = d.coins || 0;
+    // Owner gets all weapons for free
+    if(isOwner()) ownedWeapons = [0,1,2,3];
+  }catch(e){ ownedWeapons=[0]; G.coins=0; }
+  updateCoinDisplay();
+  updateWeaponSlots();
+}
+function saveShopData(){
+  try{
+    localStorage.setItem(getShopKey(), JSON.stringify({
+      owned: ownedWeapons,
+      coins: G.coins || 0
+    }));
+  }catch(e){}
+}
+
+function openShop(){
+  loadShopData();
+  renderShop();
+  document.getElementById('shopPanel').style.display='flex';
+}
+function closeShop(){
+  document.getElementById('shopPanel').style.display='none';
+  updateWeaponSlots();
+}
+
+function renderShop(){
+  var grid = document.getElementById('shopGrid');
+  var coins = G.coins || 0;
+  document.getElementById('shopCoinVal').textContent = coins;
+  grid.innerHTML = '';
+  SHOP_WEAPONS.forEach(function(w){
+    var owned = ownedWeapons.indexOf(w.id) !== -1;
+    var canAfford = coins >= w.price;
+    var card = document.createElement('div');
+    card.className = 'shopCard ' + (owned ? 'owned' : 'locked');
+    var btnClass = owned ? 'owned' : (canAfford ? 'buy' : 'cantafford');
+    var btnText = owned ? '✓ OWNED' : (canAfford ? '🪙 BUY — '+w.price : '🪙 NEED '+w.price);
+    card.innerHTML =
+      (owned ? '<div class="shopOwnedBadge">OWNED</div>' : '') +
+      '<div class="shopIcon">'+w.icon+'</div>' +
+      '<div class="shopName">'+w.name+' '+w.key+'</div>' +
+      '<div class="shopDesc">'+w.desc.replace(/\n/g,'<br>')+'</div>' +
+      '<div class="shopPrice">'+(w.price===0?'FREE':'🪙 '+w.price+' COINS')+'</div>' +
+      '<button class="shopBuyBtn '+btnClass+'" '+(owned||!canAfford?'disabled':'')+' onclick="buyWeapon('+w.id+')">'+btnText+'</button>';
+    grid.appendChild(card);
+  });
+}
+
+function buyWeapon(id){
+  if(ownedWeapons.indexOf(id) !== -1) return;
+  var w = SHOP_WEAPONS[id];
+  if((G.coins||0) < w.price){ showWM('NOT ENOUGH COINS!'); return; }
+  G.coins -= w.price;
+  ownedWeapons.push(id);
+  saveShopData();
+  renderShop();
+  updateCoinDisplay();
+  updateWeaponSlots();
+  showWM('✅ '+w.name+' UNLOCKED!');
+}
+
+function updateCoinDisplay(){
+  var cd = document.getElementById('coinDisplay');
+  var cc = document.getElementById('coinCount');
+  if(cc) cc.textContent = G.coins || 0;
+  if(cd) cd.style.display = G.on ? 'block' : 'none';
+}
+
+function updateWeaponSlots(){
+  // Grey out locked weapons in HUD
+  [0,1,2,3].forEach(function(i){
+    var el = document.getElementById('ws'+i);
+    if(!el) return;
+    var owned = ownedWeapons.indexOf(i) !== -1;
+    if(!owned){
+      el.style.opacity = '0.3';
+      el.style.textDecoration = 'line-through';
+      el.title = 'Buy in shop!';
+    } else {
+      el.style.opacity = '1';
+      el.style.textDecoration = 'none';
+      el.title = '';
+    }
+  });
+}
+
+// Override switchW to block locked weapons
+var _origSwitchW = switchW;
+switchW = function(i){
+  if(ownedWeapons.indexOf(i) === -1){
+    showWM('🔒 BUY IN SHOP FIRST! ('+SHOP_WEAPONS[i].price+' coins)');
+    return;
+  }
+  _origSwitchW(i);
+};
+
+// Add coins when killing zombies (hook into G.score updates)
+var _lastScore = 0;
+function awardCoins(){
+  if(!G.on) return;
+  var diff = (G.score||0) - _lastScore;
+  if(diff > 0){
+    // 1 coin per 10 score
+    var earned = Math.floor(diff / 10);
+    if(earned > 0){
+      G.coins = (G.coins||0) + earned;
+      updateCoinDisplay();
+    }
+  }
+  _lastScore = G.score||0;
+}
+
+// Show shop button on home screen
+function showShopBtn(){
+  var btn = document.getElementById('shopBtn');
+  if(btn) btn.style.display = currentUser ? 'block' : 'none';
+}
+
 // ── AUTH SYSTEM (works on ALL devices via Account Code) ──
 // Accounts stored in localStorage on each device.
 // To use same account on phone: click "USE ON PHONE" button — get a code — paste it on phone.
@@ -1047,6 +1224,10 @@ function onAuthSuccess(){
   if(adminBtn)adminBtn.style.display=isOwner()?'block':'none';
   var homeAdmin=document.getElementById('homeAdminBtn');
   if(homeAdmin)homeAdmin.style.display=isOwner()?'block':'none';
+  // Load shop
+  G.coins=G.coins||0;
+  loadShopData();
+  showShopBtn();
 }
 
 function doLogout(){
@@ -1254,6 +1435,144 @@ function applyBrightness(){
   // Also apply via CSS brightness filter on canvas
   var gc=document.getElementById('gc');
   if(gc) gc.style.filter='brightness('+Math.min(b/1.5,2.0)+')';
+}
+
+
+// ── WEAPON SHOP SYSTEM ─────────────────────────────────
+var SHOP_WEAPONS = [
+  { id:0, name:'AK-47',    icon:'🔫', price:0,   desc:'30 rounds\nFast fire rate\nHeadshot: 25-40 dmg',   key:'[1]' },
+  { id:1, name:'CROSSBOW', icon:'🏹', price:50,  desc:'6 bolts\nHigh damage\nHeadshot: 80-120 dmg',      key:'[2]' },
+  { id:2, name:'KNIFE',    icon:'🔪', price:70,  desc:'Unlimited\nMelee only\nBackstab = instant kill!',  key:'[3]' },
+  { id:3, name:'SNIPER',   icon:'🎯', price:100, desc:'5 rounds\nHeadshot = INSTANT KILL\nBody: 120-200', key:'[4]' },
+];
+
+// Which weapons player owns (persisted per account)
+var ownedWeapons = [0]; // everyone starts with AK-47
+
+function getShopKey(){
+  return 'dza_shop_' + (currentUser ? currentUser.toLowerCase() : 'guest');
+}
+function loadShopData(){
+  try{
+    var d = JSON.parse(localStorage.getItem(getShopKey()) || '{}');
+    ownedWeapons = d.owned || [0];
+    G.coins = d.coins || 0;
+    // Owner gets all weapons for free
+    if(isOwner()) ownedWeapons = [0,1,2,3];
+  }catch(e){ ownedWeapons=[0]; G.coins=0; }
+  updateCoinDisplay();
+  updateWeaponSlots();
+}
+function saveShopData(){
+  try{
+    localStorage.setItem(getShopKey(), JSON.stringify({
+      owned: ownedWeapons,
+      coins: G.coins || 0
+    }));
+  }catch(e){}
+}
+
+function openShop(){
+  loadShopData();
+  renderShop();
+  document.getElementById('shopPanel').style.display='flex';
+}
+function closeShop(){
+  document.getElementById('shopPanel').style.display='none';
+  updateWeaponSlots();
+}
+
+function renderShop(){
+  var grid = document.getElementById('shopGrid');
+  var coins = G.coins || 0;
+  document.getElementById('shopCoinVal').textContent = coins;
+  grid.innerHTML = '';
+  SHOP_WEAPONS.forEach(function(w){
+    var owned = ownedWeapons.indexOf(w.id) !== -1;
+    var canAfford = coins >= w.price;
+    var card = document.createElement('div');
+    card.className = 'shopCard ' + (owned ? 'owned' : 'locked');
+    var btnClass = owned ? 'owned' : (canAfford ? 'buy' : 'cantafford');
+    var btnText = owned ? '✓ OWNED' : (canAfford ? '🪙 BUY — '+w.price : '🪙 NEED '+w.price);
+    card.innerHTML =
+      (owned ? '<div class="shopOwnedBadge">OWNED</div>' : '') +
+      '<div class="shopIcon">'+w.icon+'</div>' +
+      '<div class="shopName">'+w.name+' '+w.key+'</div>' +
+      '<div class="shopDesc">'+w.desc.replace(/\n/g,'<br>')+'</div>' +
+      '<div class="shopPrice">'+(w.price===0?'FREE':'🪙 '+w.price+' COINS')+'</div>' +
+      '<button class="shopBuyBtn '+btnClass+'" '+(owned||!canAfford?'disabled':'')+' onclick="buyWeapon('+w.id+')">'+btnText+'</button>';
+    grid.appendChild(card);
+  });
+}
+
+function buyWeapon(id){
+  if(ownedWeapons.indexOf(id) !== -1) return;
+  var w = SHOP_WEAPONS[id];
+  if((G.coins||0) < w.price){ showWM('NOT ENOUGH COINS!'); return; }
+  G.coins -= w.price;
+  ownedWeapons.push(id);
+  saveShopData();
+  renderShop();
+  updateCoinDisplay();
+  updateWeaponSlots();
+  showWM('✅ '+w.name+' UNLOCKED!');
+}
+
+function updateCoinDisplay(){
+  var cd = document.getElementById('coinDisplay');
+  var cc = document.getElementById('coinCount');
+  if(cc) cc.textContent = G.coins || 0;
+  if(cd) cd.style.display = G.on ? 'block' : 'none';
+}
+
+function updateWeaponSlots(){
+  // Grey out locked weapons in HUD
+  [0,1,2,3].forEach(function(i){
+    var el = document.getElementById('ws'+i);
+    if(!el) return;
+    var owned = ownedWeapons.indexOf(i) !== -1;
+    if(!owned){
+      el.style.opacity = '0.3';
+      el.style.textDecoration = 'line-through';
+      el.title = 'Buy in shop!';
+    } else {
+      el.style.opacity = '1';
+      el.style.textDecoration = 'none';
+      el.title = '';
+    }
+  });
+}
+
+// Override switchW to block locked weapons
+var _origSwitchW = switchW;
+switchW = function(i){
+  if(ownedWeapons.indexOf(i) === -1){
+    showWM('🔒 BUY IN SHOP FIRST! ('+SHOP_WEAPONS[i].price+' coins)');
+    return;
+  }
+  _origSwitchW(i);
+};
+
+// Add coins when killing zombies (hook into G.score updates)
+var _lastScore = 0;
+function awardCoins(){
+  if(!G.on) return;
+  var diff = (G.score||0) - _lastScore;
+  if(diff > 0){
+    // 1 coin per 10 score
+    var earned = Math.floor(diff / 10);
+    if(earned > 0){
+      G.coins = (G.coins||0) + earned;
+      updateCoinDisplay();
+    }
+  }
+  _lastScore = G.score||0;
+}
+
+// Show shop button on home screen
+function showShopBtn(){
+  var btn = document.getElementById('shopBtn');
+  if(btn) btn.style.display = currentUser ? 'block' : 'none';
 }
 
 // ── AUTH SYSTEM ────────────────────────────────────────
@@ -2533,7 +2852,7 @@ function mkShell(){var m=new THREE.Mesh(new THREE.CylinderGeometry(0.024,0.024,0
 function mkPKU(pos,type){var c=type==='ammo'?0xffcc00:0xff2244,g2=new THREE.Group();var m=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.6,0.6),new THREE.MeshLambertMaterial({color:c}));g2.add(m);g2.position.copy(pos);g2.position.y=0.55;g2._type=type;g2._l=650;g2._r=0;g2.add(new THREE.PointLight(c,3,5.5));return g2;}
 
 // ── GAME STATE ─────────────────────────────────────────
-var G={on:false,score:0,kills:0,lives:3,hp:100,wave:1,wA:false,wT:0,wK:0,wN:0,sCD:0,fr:0,keys:{}};
+var G={on:false,score:0,coins:0,kills:0,lives:3,hp:100,wave:1,wA:false,wT:0,wK:0,wN:0,sCD:0,fr:0,keys:{}};
 var yaw=0,pitch=0,bobT=0,bobAmt=0,gunKick=0,knifeAnim=0,cwi=0;
 var velY=0,isGrounded=true,GRAVITY=-0.025,JUMP_FORCE=0.30,GROUND_Y=1.7;
 var WPS=[
@@ -2577,7 +2896,10 @@ document.addEventListener('keydown',function(e){
   if(!G.on)return;
   if(e.code==='KeyR'){e.preventDefault();doRld();}
   if(e.code==='Space'&&isGrounded){velY=JUMP_FORCE;isGrounded=false;}
-  if(e.code==='Digit1')switchW(0);if(e.code==='Digit2')switchW(1);if(e.code==='Digit3')switchW(2);if(e.code==='Digit4')switchW(3);
+  if(e.code==='Digit1')switchW(0);
+  if(e.code==='Digit2')switchW(1);
+  if(e.code==='Digit3')switchW(2);
+  if(e.code==='Digit4')switchW(3);
   if(e.code==='KeyE'&&(cwi===0||cwi===1||cwi===3)){
     scopeOn=!scopeOn;
     if(scopeOn){
@@ -2825,7 +3147,7 @@ function loop(){
   }
   if(G.wA&&G.wK>=G.wN&&ENM.filter(function(e){return!e._dead;}).length===0){G.wA=false;G.wT=220;}
   if(!G.wA&&G.wT>0){G.wT--;if(G.wT===0){G.wave++;spawnWave();if(G.wave%3===0&&G.lives<3){G.lives++;showWM('EXTRA LIFE!');}}}
-  if(isOwner())applyPersistentCheats();updatePerf();updateHUD();rndr.render(scene,cam);if(G.fr%2===0)wrndr.render(wscene,wcam);
+  if(isOwner())applyPersistentCheats();updatePerf();updateHUD();awardCoins();rndr.render(scene,cam);if(G.fr%2===0)wrndr.render(wscene,wcam);
 }
 
 function startGame(){
@@ -2835,6 +3157,9 @@ function startGame(){
   SHL.forEach(function(s){scene.remove(s);});SHL.length=0;
   PKU.forEach(function(p){scene.remove(p);});PKU.length=0;
   G.on=true;G.score=0;G.kills=0;G.lives=3;G.hp=100;G.wave=1;G.wA=false;G.wT=0;G.wK=0;G.wN=0;G.sCD=0;G.fr=0;
+  _lastScore=0;loadShopData();updateCoinDisplay();
+  // Only allow AK-47 at start (unless owner)
+  if(!isOwner()&&ownedWeapons.indexOf(cwi)===-1)switchW(0);
   WPS[0].am=30;WPS[0].rs=90;WPS[1].am=6;WPS[1].rs=24;WPS[2].am=999;WPS[2].rs=999;WPS[3].am=5;WPS[3].rs=20;
   WPS.forEach(function(w){w.rld=false;w.rT=0;});
   yaw=0;pitch=0;bobT=0;bobAmt=0;gunKick=0;knifeAnim=0;velY=0;isGrounded=true;
@@ -2844,6 +3169,7 @@ function startGame(){
   scopeOn=false;document.getElementById('scope').style.display='none';
   switchW(0);
   document.getElementById('ss').style.display='none';document.getElementById('ds').style.display='none';
+  var sb=document.getElementById('shopBtn');if(sb)sb.style.display='none';
   var ha=document.getElementById('homeAdminBtn');if(ha)ha.style.display='none';
   document.getElementById('gc').style.display='block';document.getElementById('wc').style.display='block';
   document.getElementById('hud').style.display='block';document.getElementById('ch').style.display='block';
@@ -2853,12 +3179,15 @@ function startGame(){
   spawnWave();updateHUD();loop();
 }
 function endGame(){
-  G.on=false;if(document.pointerLockElement)document.exitPointerLock();
+  G.on=false;
+  saveShopData();updateCoinDisplay();
+  var cd=document.getElementById('coinDisplay');if(cd)cd.style.display='none';if(document.pointerLockElement)document.exitPointerLock();
   if(G.score>best)best=G.score;
   document.getElementById('dSc').textContent=G.score;document.getElementById('dKl').textContent=G.kills;
   document.getElementById('dWv').textContent=G.wave;document.getElementById('dBs').textContent=best;
   document.getElementById('ds').style.display='flex';
-  document.getElementById('hud').style.display='none';document.getElementById('gc').style.display='none';
+  document.getElementById('hud').style.display='none';
+  showShopBtn();document.getElementById('gc').style.display='none';
   document.getElementById('wc').style.display='none';document.getElementById('ch').style.display='none';
   document.body.style.cursor='default';
   stopMusic();startMusic();
