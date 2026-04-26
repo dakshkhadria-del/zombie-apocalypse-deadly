@@ -2277,19 +2277,23 @@ function mkZombie(type){
   bx(0.07,0.18,0.29, CLOTH3, 0.22,0.35,0,0,-0.12);
 
   // ── LEGS ──────────────────────────────────────────────
+  // LEFT LEG MISSING — just a bloody stump!
   var lTG=new THREE.Group();lTG.position.set(-0.14,0.34,0);g.add(lTG);
   (function(){
-    var a=new THREE.Mesh(new THREE.BoxGeometry(0.20,0.46,0.22),zm(CLOTH));a.position.y=-0.23;a.castShadow=true;lTG.add(a);
-    var b=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.42,0.19),zm(SKIN));b.position.y=-0.21;lTG.add(b);
-    var c=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.20,0.23),zm(CLOTH3));c.position.set(0.07,-0.36,0);c.rotation.z=0.14;lTG.add(c);
+    // Short stump — upper thigh only
+    var a=new THREE.Mesh(new THREE.BoxGeometry(0.20,0.22,0.22),zm(CLOTH));a.position.y=-0.11;a.castShadow=true;lTG.add(a);
+    var b=new THREE.Mesh(new THREE.BoxGeometry(0.17,0.18,0.19),zm(SKIN));b.position.y=-0.09;lTG.add(b);
+    // Bloody torn end of stump
+    var bl=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.04,0.20),zm(0xcc1010));bl.position.y=-0.22;lTG.add(bl);
+    var bl2=new THREE.Mesh(new THREE.BoxGeometry(0.14,0.04,0.16),zm(0xaa0808));bl2.position.y=-0.24;lTG.add(bl2);
+    // Bone poking out of stump
+    var bone=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.030,0.10,6),new THREE.MeshLambertMaterial({color:0xe8ddb8}));bone.position.set(0,-0.27,0);lTG.add(bone);
+    // Blood drips
+    var dr=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.005,0.12,4),new THREE.MeshLambertMaterial({color:0xaa0808}));dr.position.set(0.04,-0.26,0.04);dr.rotation.z=0.3;lTG.add(dr);
+    var dr2=new THREE.Mesh(new THREE.CylinderGeometry(0.009,0.003,0.09,4),new THREE.MeshLambertMaterial({color:0x880606}));dr2.position.set(-0.05,-0.25,0.02);dr2.rotation.z=-0.25;lTG.add(dr2);
   })();
-  var lSG=new THREE.Group();lSG.position.set(-0.14,0.0,0);g.add(lSG);
-  (function(){
-    var a=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.42,0.20),zm(CLOTH));a.position.y=-0.21;a.castShadow=true;lSG.add(a);
-    var b=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.38,0.17),zm(SKIN));b.position.y=-0.19;lSG.add(b);
-  })();
-  bx(0.18,0.07,0.30,SKIN, -0.14,-0.10,0.05);
-  bx(0.16,0.055,0.10,SKIN2,-0.14,-0.102,0.20);
+  // No lower leg or foot on left side
+  var lSG=new THREE.Group();lSG.position.set(-0.14,0.0,0);g.add(lSG);// empty group kept for animation refs
 
   var rTG=new THREE.Group();rTG.position.set( 0.14,0.34,0);g.add(rTG);
   (function(){
@@ -2418,7 +2422,7 @@ function mkZombie(type){
   hb(0.016,0.075,0.024,0x060606,-0.115,HO+0.004,-0.202);
   hb(0.012,0.045,0.020,0x060606,-0.108,HO-0.038,-0.205);
   // Strong red eye glow so face visible in dark
-  var eg=new THREE.PointLight(0xff2200,3.5,5.0);eg.position.set(0,HO+0.09,-0.20);HG.add(eg);
+  var eg=new THREE.PointLight(0xff2200,4.0,5.0);eg.position.set(0,HO+0.09,-0.25);HG.add(eg);
 
   // NOSE — collapsed, just holes
   hb(0.090,0.075,0.055,SKIN3,  0,HO-0.008,-0.200);
@@ -2502,7 +2506,7 @@ function mkZombie(type){
   }
 
   // Own light so face always lit
-  var zL=new THREE.PointLight(0xffcc88,2.2,6.0);zL.position.set(0,1.7,0);g.add(zL);
+  var zL=new THREE.PointLight(0xffffff,4.0,8.0);zL.position.set(0,1.5,0.3);g.add(zL);// front-facing light
 
   // HP BAR
   var hpBg=new THREE.Mesh(new THREE.PlaneGeometry(0.90,0.17),new THREE.MeshBasicMaterial({color:0x111111,side:THREE.DoubleSide,depthTest:false}));
@@ -2793,9 +2797,9 @@ function loop(){
     if(e._dead){e._dT++;e.position.y=-e._dT*0.032;e.rotation.x+=0.05;if(e._dT>26){scene.remove(e);ENM.splice(i,1);}continue;}
     e._gT--;if(e._gT<=0){sndGroan();e._gT=130+Math.floor(Math.random()*140);}
     var tp=cam.position.clone().sub(e.position);tp.y=0;var dl=tp.length();
-    if(dl>0.01){tp.normalize();e.position.x+=tp.x*e._spd;e.position.z+=tp.z*e._spd;e.rotation.y=Math.atan2(tp.x,tp.z);}
+    if(dl>0.01){tp.normalize();e.position.x+=tp.x*e._spd;e.position.z+=tp.z*e._spd;e.rotation.y=Math.atan2(tp.x,tp.z)+Math.PI;}
     e._wk+=e._spd*22;var wc=e._wk;
-    e._lTG.rotation.x=Math.sin(wc)*0.65;e._rTG.rotation.x=Math.sin(wc+3.14)*0.65;
+    e._lTG.rotation.x=Math.sin(wc)*0.15;e._rTG.rotation.x=Math.sin(wc+3.14)*0.75;
     e._lSG.rotation.x=Math.max(0,Math.sin(wc+0.65))*0.5;e._rSG.rotation.x=Math.max(0,Math.sin(wc+3.8))*0.5;
     e._lTG.rotation.z=Math.sin(wc*0.5)*0.06;e._rTG.rotation.z=-Math.sin(wc*0.5)*0.06;
     e._lAG.rotation.x=-1.25+Math.sin(wc)*0.28;e._rAG.rotation.x=-1.25+Math.sin(wc+3.14)*0.28;
